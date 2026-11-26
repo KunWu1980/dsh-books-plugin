@@ -21,7 +21,7 @@ const CONFIG_FILE = path.join(homedir(), ".dsh", "books-plugin", "config.json");
 // Default library: a "Books" folder under the user home directory.
 // Users can change this from the settings panel (which can also move existing books).
 const DEFAULT_LIB = path.join(homedir(), "Books");
-const SUPPORTED = [".txt", ".epub", ".pdf", ".azw3", ".mobi", ".azw"];
+const SUPPORTED = [".txt", ".epub", ".pdf", ".azw3", ".mobi", ".azw", ".doc", ".docx"];
 
 const inject = ["tools"];
 

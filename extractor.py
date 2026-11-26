@@ -9,7 +9,7 @@ Output (stdout, single JSON object):
     {
       "title": str,
       "author": str,
-      "format": "txt"|"epub"|"pdf"|"azw3",
+      "format": "txt"|"epub"|"pdf"|"azw3"|"docx"|"doc",
       "chapters": [ {"heading": str, "text": str}, ... ],
       "warning": str (optional)
     }
@@ -19,6 +19,9 @@ Supported formats:
     .epub  -- ebooklib spine order, HTML stripped to text.
     .pdf   -- pypdf text extraction (page per chapter).
     .azw3  -- `mobi` extraction to a temp EPUB/HTML, then parsed as EPUB/HTML.
+    .docx  -- python-docx paragraphs + tables, heading styles -> chapters.
+    .doc   -- legacy Word: Word COM (pywin32) if available, else an OLE
+              word-document stream text scan via olefile, else a binary scan.
 
 DRM-protected books are not supported. Scanned PDFs yield no text; a warning
 is added in that case.
@@ -276,6 +279,197 @@ def extract_azw3(path):
 
 
 # ---------------------------------------------------------------------------
+# Word documents (.docx / .doc)
+# ---------------------------------------------------------------------------
+
+def _docx_to_result(path):
+    """Extract text from a .docx using python-docx, keeping heading structure."""
+    from docx import Document
+    doc = Document(path)
+    title = ""
+    author = ""
+    try:
+        cp = doc.core_properties
+        title = (cp.title or "").strip()
+        author = (cp.author or "").strip()
+    except Exception:
+        pass
+
+    chapters = []
+    buf_heading = ""
+    buf_lines = []
+
+    def flush():
+        nonlocal buf_heading, buf_lines
+        text = _collapse("\n".join(buf_lines))
+        if text.strip():
+            chapters.append({"heading": buf_heading.strip(), "text": text})
+        buf_heading = ""
+        buf_lines = []
+
+    for para in doc.paragraphs:
+        raw = (para.text or "").strip()
+        if not raw:
+            continue
+        style = ""
+        try:
+            style = (para.style.name or "").lower()
+        except Exception:
+            pass
+        is_heading = style.startswith("heading") or style.startswith("标题")
+        if is_heading:
+            # A heading starts a new chapter.
+            flush()
+            buf_heading = raw
+        else:
+            buf_lines.append(raw)
+    # Include table text (paragraphs alone skip table cells).
+    for table in doc.tables:
+        for row in table.rows:
+            cells = []
+            for cell in row.cells:
+                txt = " ".join((p.text or "").strip() for p in cell.paragraphs if p.text and p.text.strip())
+                if txt:
+                    cells.append(txt)
+            if cells:
+                buf_lines.append(" | ".join(cells))
+    flush()
+
+    if not title:
+        title = os.path.splitext(os.path.basename(path))[0]
+    return {"title": title, "author": author, "chapters": chapters}
+
+
+def _doc_via_word(path):
+    """Legacy .doc -> text using Word COM (pywin32). Returns None on failure."""
+    try:
+        import pythoncom
+        import win32com.client
+    except Exception:
+        return None
+    pythoncom.CoInitialize()
+    word = None
+    doc = None
+    try:
+        word = win32com.client.DispatchEx("Word.Application")
+        word.Visible = False
+        word.DisplayAlerts = 0
+        doc = word.Documents.Open(os.path.abspath(path), ReadOnly=True,
+                                  AddToRecentFiles=False, Visible=False)
+        text = doc.Content.Text or ""
+        title = ""
+        author = ""
+        try:
+            title = (doc.BuiltInDocumentProperties("Title").Value or "").strip()
+            author = (doc.BuiltInDocumentProperties("Author").Value or "").strip()
+        except Exception:
+            pass
+        # Normalize Word's paragraph marks (\r) to newlines.
+        text = text.replace("\r", "\n").replace("\x07", "\n")
+        lines = [ln.strip() for ln in text.split("\n") if ln.strip() and ln.strip() != "\x0c"]
+        # Chapter split: a short standalone line (<= 40 chars) that looks like a heading.
+        chapters = []
+        buf = []
+        for ln in lines:
+            looks_heading = (len(ln) <= 40 and
+                             re.match(r"^(第[一二三四五六七八九十百零〇0-9]+[章节篇卷部]|"
+                                      r"[一二三四五六七八九十]+[、．.]|"
+                                      r"\d+[.．、])", ln))
+            if looks_heading and buf:
+                chapters.append({"heading": "", "text": _collapse("\n".join(buf))})
+                buf = []
+                chapters.append({"heading": ln, "text": ""})
+            else:
+                buf.append(ln)
+        if buf:
+            text2 = _collapse("\n".join(buf))
+            if chapters and not chapters[-1]["text"]:
+                chapters[-1]["text"] = text2
+            else:
+                chapters.append({"heading": "", "text": text2})
+        chapters = [c for c in chapters if c["text"].strip() or c["heading"].strip()]
+        if not title:
+            title = os.path.splitext(os.path.basename(path))[0]
+        return {"title": title, "author": author, "chapters": chapters}
+    except Exception:
+        return None
+    finally:
+        try:
+            if doc is not None:
+                doc.Close(SaveChanges=0)
+        except Exception:
+            pass
+        try:
+            if word is not None:
+                word.Quit()
+        except Exception:
+            pass
+        try:
+            pythoncom.CoUninitialize()
+        except Exception:
+            pass
+
+
+def _doc_via_ole(path):
+    """Fallback for legacy .doc: read the WordDocument OLE stream and decode
+    the text. Handles both unicode UTF-16LE and 8-bit cp1252/gb18030 text."""
+    try:
+        import olefile
+    except Exception:
+        return None
+    if not olefile.isOleFile(path):
+        return None
+    try:
+        ole = olefile.OleFileIO(path)
+        stream = None
+        for name in ole.listdir():
+            if name and name[0].lower() == "worddocument":
+                stream = ole.openstream(name).read()
+                break
+        ole.close()
+        if not stream:
+            return None
+        # Try UTF-16LE first (Word stores unicode text that way).
+        text_u = stream.decode("utf-16-le", errors="ignore")
+        text_u = "".join(ch if ch.isprintable() or ch in "\n\r\t" else " " for ch in text_u)
+        text_u = _collapse(text_u)
+        # Try 8-bit decode too, keep whichever yields more legible output.
+        best = text_u
+        for enc in ("gb18030", "cp1252"):
+            try:
+                text8 = _collapse(stream.decode(enc, errors="ignore"))
+                if len(text8) > len(best) + 200:
+                    best = text8
+            except Exception:
+                pass
+        if len(best) < 30:
+            return None
+        blocks = re.split(r"\n\s*\n+", best)
+        if len(blocks) <= 1:
+            blocks = [best[i:i + 3000] for i in range(0, len(best), 3000)]
+        chapters = [{"heading": "", "text": b.strip()} for b in blocks if b.strip()]
+        return {"title": os.path.splitext(os.path.basename(path))[0],
+                "author": "", "chapters": chapters,
+                "warning": "Legacy .doc extracted from OLE stream; layout may be imperfect"}
+    except Exception:
+        return None
+
+
+def extract_doc(path):
+    """Extract a legacy .doc: prefer Word COM, then OLE stream scan."""
+    result = _doc_via_word(path)
+    if result and result.get("chapters"):
+        return result
+    result = _doc_via_ole(path)
+    if result and result.get("chapters"):
+        return result
+    return {"title": os.path.splitext(os.path.basename(path))[0],
+            "author": "", "chapters": [],
+            "warning": "Could not extract text from legacy .doc " +
+                       "(Word COM unavailable and OLE stream unreadable)"}
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
@@ -294,6 +488,10 @@ def main():
             result = extract_pdf(path)
         elif ext in (".azw3", ".mobi", ".azw"):
             result = extract_azw3(path)
+        elif ext == ".docx":
+            result = _docx_to_result(path)
+        elif ext == ".doc":
+            result = extract_doc(path)
         else:
             result = {"error": "Unsupported format: %s" % ext,
                       "title": os.path.basename(path), "author": "", "chapters": []}

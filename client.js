@@ -9,13 +9,14 @@ window.__ModuleLoader__.load({
 
     const zh = {
       meta: { title: '书架', description: '在 DeepSeek Harness 内阅读和管理你的书库' },
-      panel: '书架', library: '书库', empty: '未找到书籍。请将 TXT/EPUB/PDF/AZW3 文件放入书库目录。',
+      panel: '书架', library: '书库', empty: '未找到书籍。请将 TXT/EPUB/PDF/AZW3/DOC/DOCX 文件放入书库目录。',
       loading: '加载中...', refresh: '刷新', search: '搜索书名或作者', untitled: '无标题',
       unknownAuthor: '未知作者', chapters: '目录', back: '返回书库',
       noText: '此书没有可提取的文本（可能是扫描版 PDF 或受 DRM 保护）。', error: '错误',
       settings: '设置', libraryPath: '书库目录', save: '保存', cancel: '取消',
       format: '格式', added: '文件已加入书库', addFailed: '添加文件失败',
-      import: '导入文件', importHint: '粘贴本机文件路径（每行一个）后导入', importAction: '导入',
+      import: '导入书籍', importHint: '点击下方按钮选择要导入的书籍文件（可多选），文件将被复制到书库目录', importAction: '选择书籍文件',
+      importDone: '已导入 {n} 本，失败 {s} 本', importFailed: '导入失败',
       pathLabel: '书库位置', chapterPlaceholder: '选择章节', allChapters: '全文',
       setPath: '更换书库位置', setPathHint: '修改书库保存目录。勾选“移动已有书籍”会把当前书库里的文件一并搬到新目录。',
       moveExisting: '移动已有书籍到新位置', moveNote: '原目录中已存在同名文件时跳过；跨磁盘会自动复制后删除。',
@@ -37,13 +38,14 @@ window.__ModuleLoader__.load({
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
-      panel: 'Books', library: 'Library', empty: 'No books found. Add TXT/EPUB/PDF/AZW3 files to your library folder.',
+      panel: 'Books', library: 'Library', empty: 'No books found. Add TXT/EPUB/PDF/AZW3/DOC/DOCX files to your library folder.',
       loading: 'Loading...', refresh: 'Refresh', search: 'Search title or author', untitled: 'Untitled',
       unknownAuthor: 'Unknown author', chapters: 'Chapters', back: 'Back to library',
       noText: 'This book has no extractable text (it may be a scanned image PDF or DRM-protected).', error: 'Error',
       settings: 'Settings', libraryPath: 'Library folder', save: 'Save', cancel: 'Cancel',
       format: 'Format', added: 'Files added to library', addFailed: 'Failed to add files',
-      import: 'Import files', importHint: 'Paste local file paths (one per line) to import', importAction: 'Import',
+      import: 'Import books', importHint: 'Click the button below to choose book files (multiple allowed); they will be copied into the library folder', importAction: 'Choose book files',
+      importDone: 'Imported {n}, failed {s}', importFailed: 'Import failed',
       pathLabel: 'Library location', chapterPlaceholder: 'Select a chapter', allChapters: 'All chapters',
       setPath: 'Change library location', setPathHint: 'Change where books are stored. Check "move existing books" to also move files from the current folder.',
       moveExisting: 'Move existing books to new location', moveNote: 'Files with the same name already at the target are skipped; cross-volume moves fall back to copy + delete.',
@@ -180,7 +182,7 @@ window.__ModuleLoader__.load({
       const [chapter, setChapter] = React.useState(-1);   // -1 = all
       const [visibleCount, setVisibleCount] = React.useState(12); // progressive chapter rendering
       const [showImport, setShowImport] = React.useState(false);
-      const [importPaths, setImportPaths] = React.useState('');
+      const fileInputRef = React.useRef(null);
       const [showSettings, setShowSettings] = React.useState(false);
       const [pathDraft, setPathDraft] = React.useState('');
       const [moveExisting, setMoveExisting] = React.useState(true);
@@ -398,22 +400,25 @@ window.__ModuleLoader__.load({
         }
       }
 
-      const doImport = async () => {
-        const paths = importPaths.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-        if (!paths.length) return;
+      const doImport = async (files) => {
+        const list = Array.from(files || []);
+        if (!list.length) return;
         setStatus('loading');
         try {
-          const data = await api('import', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ paths }),
-          });
-          setImportPaths('');
+          const form = new FormData();
+          for (const f of list) form.append('books', f, f.name);
+          const data = await api('import', { method: 'POST', body: form });
+          const added = Array.isArray(data.added) ? data.added.length : 0;
+          const failed = Array.isArray(data.failed) ? data.failed.length : 0;
+          setMsg(t('importDone').replace('{n}', added).replace('{s}', failed));
           setShowImport(false);
           await loadList(); // refresh books + categories via a single bootstrap
         } catch (e) {
+          setMsg(t('importFailed') + ': ' + String(e && e.message || e));
           setErrorText(String(e && e.message || e));
           setStatus('error');
+        } finally {
+          if (fileInputRef.current) fileInputRef.current.value = '';
         }
       };
 
@@ -541,9 +546,14 @@ window.__ModuleLoader__.load({
             ),
             showImport && h('div', { className: 'books-import-box' },
               h('div', { className: 'books-hint' }, t('importHint')),
-              h('textarea', { value: importPaths, onChange: (e) => setImportPaths(e.target.value), placeholder: 'D:\\Books\\a.txt' }),
+              h('input', {
+                type: 'file', multiple: true, ref: fileInputRef,
+                accept: '.txt,.epub,.pdf,.azw3,.mobi,.azw,.doc,.docx',
+                style: { display: 'none' },
+                onChange: (e) => { void doImport(e.target.files); },
+              }),
               h('div', { style: { marginTop: 8, display: 'flex', gap: 8 } },
-                h('button', { className: 'books-btn', onClick: () => void doImport(), disabled: status === 'loading' }, t('importAction')),
+                h('button', { className: 'books-btn', onClick: () => fileInputRef.current && fileInputRef.current.click(), disabled: status === 'loading' }, t('importAction')),
                 h('button', { className: 'books-btn', onClick: () => setShowImport(false) }, t('cancel')),
               ),
             ),
