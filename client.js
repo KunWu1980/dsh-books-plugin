@@ -35,6 +35,13 @@ window.__ModuleLoader__.load({
       loadMore: '加载更多（还有 {n} 章）', chapterLabel: '跳转章节',
       deleteCategory: '删除分类',
       myCategories: '我的分类', folderCategories: '文件夹分类', close: '关闭',
+      deleteBook: '删除书籍',
+      deleteTitle: '删除《{n}》',
+      deleteHint: '请选择删除方式：',
+      deleteRecord: '仅从书架移除（保留本地文件）', deleteRecordNote: '书籍将从书架消失，但文件仍保留在书库目录中，可随时重新导入。',
+      deleteFile: '从书架移除并删除本地文件', deleteFileNote: '书籍记录和书库目录中的文件都会被永久删除，此操作不可撤销。',
+      deleteDone: '已从书架移除《{n}》', deleteFileDone: '已删除《{n}》及其本地文件', deleteFailed: '删除失败',
+      confirmDelete: '确认删除', deleteWarn: '此操作不可撤销，请谨慎选择。',
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
@@ -64,6 +71,13 @@ window.__ModuleLoader__.load({
       loadMore: 'Load more ({n} chapters left)', chapterLabel: 'Jump to chapter',
       deleteCategory: 'Delete category',
       myCategories: 'My categories', folderCategories: 'Folders', close: 'Close',
+      deleteBook: 'Delete book',
+      deleteTitle: 'Delete "{n}"',
+      deleteHint: 'Choose how to delete:',
+      deleteRecord: 'Remove from shelf only (keep local file)', deleteRecordNote: 'The book disappears from the shelf but the file stays in the library folder; you can re-import it anytime.',
+      deleteFile: 'Remove from shelf and delete local file', deleteFileNote: 'Both the shelf record and the file in the library folder are permanently deleted. This cannot be undone.',
+      deleteDone: 'Removed "{n}" from the shelf', deleteFileDone: 'Deleted "{n}" and its local file', deleteFailed: 'Delete failed',
+      confirmDelete: 'Confirm delete', deleteWarn: 'This cannot be undone; please choose carefully.',
     };
 
     const C = {
@@ -84,6 +98,8 @@ window.__ModuleLoader__.load({
       .books-title{font-size:17px;font-weight:600;flex:1;}
       .books-btn{border:1px solid ${C.border};background:${C.layer1};color:${C.text};border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px;}
       .books-btn:hover{border-color:${C.brand};color:${C.brand};}
+      .books-btn.danger{border-color:${C.error};color:${C.error};}
+      .books-btn.danger:hover{background:${C.error};color:${C.bg};}
       .books-btn:disabled{opacity:.5;cursor:not-allowed;}
       .books-body{flex:1;overflow:auto;padding:16px 20px;}
       .books-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
@@ -143,6 +159,18 @@ window.__ModuleLoader__.load({
       .books-cat-chip{border:1px solid ${C.border};background:${C.layer1};color:${C.muted};border-radius:12px;padding:2px 8px;font-size:11px;cursor:pointer;}
       .books-cat-chip.on{border-color:${C.brand};color:${C.brand};}
       .books-arrow-hint{font-size:12px;color:${C.faint};margin-top:10px;text-align:center;}
+      .books-card-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+      .books-card-btn{border:1px solid ${C.border};background:${C.layer1};color:${C.muted};border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;}
+      .books-card-btn:hover{border-color:${C.brand};color:${C.brand};}
+      .books-card-btn.danger:hover{border-color:${C.error};color:${C.error};}
+      .books-del-option{display:flex;gap:10px;align-items:flex-start;border:1px solid ${C.border};background:${C.bg};border-radius:8px;padding:10px 12px;margin:8px 0;cursor:pointer;}
+      .books-del-option:hover{border-color:${C.brand};}
+      .books-del-option.danger:hover{border-color:${C.error};}
+      .books-del-radio{margin-top:2px;accent-color:${C.brand};}
+      .books-del-option.danger .books-del-radio{accent-color:${C.error};}
+      .books-del-label{font-weight:600;font-size:13px;color:${C.text};}
+      .books-del-note{font-size:12px;color:${C.faint};margin-top:2px;line-height:1.5;}
+      .books-del-warn{font-size:12px;color:${C.error};margin:8px 0;}
     `;
 
     function BooksIcon(props) {
@@ -198,6 +226,8 @@ window.__ModuleLoader__.load({
       const [newCatName, setNewCatName] = React.useState('');
       const [renameCat, setRenameCat] = React.useState(null);   // {id,name}
       const [categorizeBook, setCategorizeBook] = React.useState(null); // book object
+      const [deleteBook, setDeleteBook] = React.useState(null);   // book object pending deletion
+      const [deleteMode, setDeleteMode] = React.useState('record'); // record|file
 
       const loadList = React.useCallback(async () => {
         setStatus('loading');
@@ -309,6 +339,32 @@ window.__ModuleLoader__.load({
         const next = current.includes(catId) ? current.filter((x) => x !== catId) : [...current, catId];
         await mutateCat('assign', { bookId: book.id, categories: next });
         setCategorizeBook((b) => b ? { ...b, categories: next } : b);
+      };
+
+      const openDelete = (book) => {
+        setDeleteBook(book);
+        setDeleteMode('record');
+      };
+
+      const doDelete = async () => {
+        if (!deleteBook) return;
+        const book = deleteBook;
+        setStatus('loading');
+        try {
+          const data = await api('delete', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ id: book.id, mode: deleteMode }),
+          });
+          setMsg((deleteMode === 'file' ? t('deleteFileDone') : t('deleteDone')).replace('{n}', book.title || t('untitled')));
+          setDeleteBook(null);
+          if (reader && reader.id === book.id) { setReader(null); setChapter(-1); }
+          await loadList();
+        } catch (e) {
+          setMsg(t('deleteFailed') + ': ' + String(e && e.message || e));
+          setErrorText(String(e && e.message || e));
+          setStatus('error');
+        }
       };
 
       const openBook = async (id) => {
@@ -571,6 +627,38 @@ window.__ModuleLoader__.load({
               ),
               h('button', { className: 'books-btn', onClick: () => setCategorizeBook(null) }, t('close')),
             ),
+            deleteBook && h('div', { className: 'books-settings-box' },
+              h('div', { style: { fontWeight: 600, marginBottom: 4 } }, t('deleteTitle').replace('{n}', deleteBook.title || t('untitled'))),
+              h('div', { className: 'books-hint' }, t('deleteHint')),
+              h('label', { className: 'books-del-option' },
+                h('input', {
+                  type: 'radio', name: 'books-del-mode', className: 'books-del-radio',
+                  checked: deleteMode === 'record', onChange: () => setDeleteMode('record'),
+                }),
+                h('div', null,
+                  h('div', { className: 'books-del-label' }, t('deleteRecord')),
+                  h('div', { className: 'books-del-note' }, t('deleteRecordNote')),
+                ),
+              ),
+              h('label', { className: 'books-del-option danger' },
+                h('input', {
+                  type: 'radio', name: 'books-del-mode', className: 'books-del-radio',
+                  checked: deleteMode === 'file', onChange: () => setDeleteMode('file'),
+                }),
+                h('div', null,
+                  h('div', { className: 'books-del-label' }, t('deleteFile')),
+                  h('div', { className: 'books-del-note' }, t('deleteFileNote')),
+                ),
+              ),
+              h('div', { className: 'books-del-warn' }, t('deleteWarn')),
+              h('div', { style: { display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' } },
+                h('button', {
+                  className: 'books-btn' + (deleteMode === 'file' ? ' danger' : ''),
+                  onClick: () => void doDelete(), disabled: status === 'loading',
+                }, t('confirmDelete')),
+                h('button', { className: 'books-btn', onClick: () => setDeleteBook(null) }, t('cancel')),
+              ),
+            ),
             filtered.length === 0
               ? h('div', { className: 'books-empty' }, t('empty'))
               : h('div', { className: 'books-grid' }, filtered.map((b) =>
@@ -580,10 +668,16 @@ window.__ModuleLoader__.load({
                       h('span', { className: 'books-badge' }, b.format), Math.round(b.size / 1024) + ' KB',
                       b.folder ? h('span', { className: 'books-badge', style: { marginLeft: 6 } }, '\uD83D\uDCC1 ' + b.folder) : null,
                     ),
-                    h('button', {
-                      className: 'books-btn', style: { marginTop: 8, fontSize: 11, padding: '2px 8px' },
-                      onClick: (e) => { e.stopPropagation(); setCategorizeBook(b); },
-                    }, t('categorize')),
+                    h('div', { className: 'books-card-actions' },
+                      h('button', {
+                        className: 'books-card-btn',
+                        onClick: (e) => { e.stopPropagation(); setCategorizeBook(b); },
+                      }, t('categorize')),
+                      h('button', {
+                        className: 'books-card-btn danger',
+                        onClick: (e) => { e.stopPropagation(); openDelete(b); },
+                      }, t('deleteBook')),
+                    ),
                   ),
                 )),
             ),

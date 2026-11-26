@@ -67,5 +67,17 @@
   "deleteCategory": "Delete category",
   "myCategories": "My categories",
   "folderCategories": "Folders",
-  "close": "Close"
+  "close": "Close",
+  "deleteBook": "Delete book",
+  "deleteTitle": "Delete \"{n}\"",
+  "deleteHint": "Choose how to delete:",
+  "deleteRecord": "Remove from shelf only (keep local file)",
+  "deleteRecordNote": "The book disappears from the shelf but the file stays in the library folder; you can re-import it anytime.",
+  "deleteFile": "Remove from shelf and delete local file",
+  "deleteFileNote": "Both the shelf record and the file in the library folder are permanently deleted. This cannot be undone.",
+  "deleteDone": "Removed \"{n}\" from the shelf",
+  "deleteFileDone": "Deleted \"{n}\" and its local file",
+  "deleteFailed": "Delete failed",
+  "confirmDelete": "Confirm delete",
+  "deleteWarn": "This cannot be undone; please choose carefully."
 }

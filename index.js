@@ -27,7 +27,10 @@ const inject = ["tools"];
 
 function readConfig() {
 	try {
-		const value = JSON.parse(readFileSync(CONFIG_FILE, "utf8"));
+		// Strip a UTF-8 BOM if present: JSON.parse() rejects it, which would
+		// silently reset the config (and the library path) to defaults.
+		const raw = readFileSync(CONFIG_FILE, "utf8").replace(/^\uFEFF/, "");
+		const value = JSON.parse(raw);
 		return typeof value === "object" && value !== null ? value : {};
 	} catch {
 		return {};
@@ -180,8 +183,15 @@ function decodeId(root, id) {
 	return abs;
 }
 
+/** Ids hidden via "delete record only" — the file stays on disk but is not shown. */
+function hiddenIds(config) {
+	const h = config?.hiddenBooks;
+	return new Set(Array.isArray(h) ? h.filter((x) => typeof x === "string") : []);
+}
+
 function scanLibrary(config) {
 	const root = libRoot(config);
+	const hidden = hiddenIds(config);
 	const books = [];
 	if (!existsSync(root)) return books;
 	const walk = (dir) => {
@@ -198,8 +208,10 @@ function scanLibrary(config) {
 			} else if (entry.isFile() && SUPPORTED.includes(path.extname(entry.name).toLowerCase())) {
 				try {
 					const st = statSync(full);
+					const id = encodeId(root, full);
+					if (hidden.has(id)) continue; // record deleted from the shelf; file kept on disk
 					books.push({
-						id: encodeId(root, full),
+						id,
 						title: path.basename(entry.name, path.extname(entry.name)),
 						author: "",
 						format: path.extname(entry.name).toLowerCase().slice(1),
@@ -366,11 +378,13 @@ function renderPage(config, id, pageNo, zoom) {
 	return out;
 }
 
-function importPaths(config, paths) {
+function importPaths(state, paths) {
+	const config = state.getConfig();
 	const root = libRoot(config);
 	mkdirSync(root, { recursive: true });
 	const added = [];
 	const failed = [];
+	const unhide = new Set();
 	for (const raw of paths) {
 		const src = String(raw || "").trim();
 		if (!src) continue;
@@ -387,11 +401,57 @@ function importPaths(config, paths) {
 			const dest = path.join(root, path.basename(abs));
 			copyFileSync(abs, dest);
 			added.push(path.basename(abs));
+			unhide.add(encodeId(root, dest));
 		} catch (e) {
 			failed.push({ path: src, error: String(e?.message || e) });
 		}
 	}
-	return { added, failed, books: scanLibrary(config) };
+	// Re-importing a previously hidden book makes it visible again.
+	if (unhide.size) {
+		const h = hiddenIds(config);
+		for (const id of unhide) h.delete(id);
+		state.applyConfig({ hiddenBooks: [...h] }, false);
+	}
+	return { added, failed, books: scanLibrary(state.getConfig()) };
+}
+
+/**
+ * Delete a book from the shelf.
+ *   mode = "record" — hide it from the library by id; the file on disk is kept.
+ *   mode = "file"   — also delete the physical file (and prune empty folders).
+ * Both modes also clear the book's category assignments and image/extract caches.
+ */
+function deleteBook(state, id, mode) {
+	const conf = state.getConfig();
+	const root = libRoot(conf);
+	const abs = decodeId(root, String(id || ""));
+	const hidden = hiddenIds(conf);
+	const nextHidden = new Set(hidden);
+	nextHidden.add(String(id));
+
+	if (mode === "file") {
+		if (!existsSync(abs)) throw new Error("Book file not found");
+		if (!isInside(abs, root) || samePath(abs, root)) throw new Error("Invalid book path");
+		unlinkSync(abs);
+		// Prune empty parent folders up to (but not including) the library root.
+		let dir = path.dirname(abs);
+		while (isInside(dir, root) && !samePath(dir, root)) {
+			try {
+				if (readdirSync(dir).length > 0) break;
+				rmdirSync(dir);
+			} catch { break; }
+			dir = path.dirname(dir);
+		}
+	}
+
+	// Clear category assignments for this book.
+	const { categories, bookCategories } = readCategories(conf);
+	const nextMap = { ...bookCategories };
+	delete nextMap[String(id)];
+
+	state.applyConfig({ hiddenBooks: [...nextHidden], bookCategories: nextMap }, false);
+	const updated = state.getConfig();
+	return { ok: true, mode, deletedFileName: path.basename(abs), fileGone: !existsSync(abs), books: scanLibrary(updated) };
 }
 
 /** Mutate custom categories in config; returns the updated categories view. */
@@ -548,13 +608,14 @@ async function handleApi(request, state) {
 			if (contentType.includes("application/json")) {
 				const body = await request.json();
 				const paths = Array.isArray(body?.paths) ? body.paths : (body?.path ? [body.path] : []);
-				return jsonResponse({ ok: true, ...importPaths(config, paths) });
+				return jsonResponse({ ok: true, ...importPaths(state, paths) });
 			}
 			const form = await request.formData();
 			const root = libRoot(config);
 			mkdirSync(root, { recursive: true });
 			const added = [];
 			const failed = [];
+			const unhide = new Set();
 			for (const [name, value] of form.entries()) {
 				if (typeof value === "string") continue;
 				try {
@@ -566,11 +627,31 @@ async function handleApi(request, state) {
 					}
 					writeFileSync(path.join(root, fileName), buf);
 					added.push(fileName);
+					unhide.add(encodeId(root, path.join(root, fileName)));
 				} catch (e) {
 					failed.push({ path: name, error: String(e?.message || e) });
 				}
 			}
-			return jsonResponse({ ok: true, added, failed, books: scanLibrary(config) });
+			if (unhide.size) {
+				const h = hiddenIds(config);
+				for (const id of unhide) h.delete(id);
+				state.applyConfig({ hiddenBooks: [...h] }, false);
+			}
+			return jsonResponse({ ok: true, added, failed, books: scanLibrary(state.getConfig()) });
+		} catch (e) {
+			return jsonResponse({ ok: false, error: String(e?.message || e) }, 400);
+		}
+	}
+	if (p === "/api/books/delete" && method === "POST") {
+		let body;
+		try {
+			body = await request.json();
+		} catch {
+			return jsonResponse({ ok: false, error: "Invalid JSON" }, 400);
+		}
+		try {
+			const mode = body?.mode === "file" ? "file" : "record";
+			return jsonResponse(deleteBook(state, String(body?.id || ""), mode));
 		} catch (e) {
 			return jsonResponse({ ok: false, error: String(e?.message || e) }, 400);
 		}
@@ -582,12 +663,13 @@ const TOOL_PARAMETERS = {
 	type: "object",
 	additionalProperties: false,
 	properties: {
-		action: { type: "string", enum: ["list", "read", "add", "setpath"], description: "list: show library books and current location; read: extract a book's text; add: copy local file paths into the library; setpath: change the library location (optionally moving existing books)." },
-		id: { type: "string", description: "Book id from list (required for read)." },
+		action: { type: "string", enum: ["list", "read", "add", "setpath", "delete"], description: "list: show library books and current location; read: extract a book's text; add: copy local file paths into the library; setpath: change the library location (optionally moving existing books); delete: remove a book from the shelf (mode=record hides it, mode=file also deletes the local file)." },
+		id: { type: "string", description: "Book id from list (required for read/delete)." },
 		paths: { type: "array", items: { type: "string" }, description: "Local file paths to import (required for add)." },
 		chapter: { type: "integer", description: "Optional 1-based chapter index for read; omit to read all." },
 		path: { type: "string", description: "New library folder path (required for setpath)." },
 		move: { type: "boolean", description: "For setpath: move existing files into the new folder (default true)." },
+		mode: { type: "string", enum: ["record", "file"], description: "For delete: record hides the shelf entry (keeps the file); file also deletes the local file (default record)." },
 	},
 	required: ["action"],
 };
@@ -626,7 +708,7 @@ export function apply(ctx) {
 			ctx.logger?.warn?.("[books] connection.fetch unavailable; UI panel routes not registered");
 			return;
 		}
-		const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories"].map((name) =>
+		const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete"].map((name) =>
 			connection.fetch.register({
 				path: "/api/books/" + name,
 				methods: ["GET", "POST"],
@@ -639,7 +721,7 @@ export function apply(ctx) {
 
 	ctx.effect(() => ctx.tools.register({
 		name: "books",
-		description: "Read and manage the local book library (TXT/EPUB/PDF/AZW3). Use action=list to see books, their ids and the current library location; action=read with an id to extract the book's text (optionally one chapter); action=add with paths to import files; action=setpath with a path to change the library location and move existing books. This is the same library shown in the Books sidebar panel.",
+		description: "Read and manage the local book library (TXT/EPUB/PDF/AZW3). Use action=list to see books, their ids and the current library location; action=read with an id to extract the book's text (optionally one chapter); action=add with paths to import files; action=setpath with a path to change the library location and move existing books; action=delete with an id (and mode=record|file) to remove a book. This is the same library shown in the Books sidebar panel.",
 		parameters: TOOL_PARAMETERS,
 		output: TOOL_OUTPUT,
 		timeoutMs: 180000,
@@ -676,7 +758,7 @@ export function apply(ctx) {
 			if (action === "add") {
 				const paths = Array.isArray(args.paths) ? args.paths : (args.path ? [args.path] : []);
 				if (!paths.length) throw new Error("action=add requires paths");
-				const outcome = importPaths(conf, paths);
+				const outcome = importPaths(state, paths);
 				return { ok: true, text: `Added ${outcome.added.length} file(s): ${outcome.added.join(", ")}${outcome.failed.length ? "\nFailed: " + outcome.failed.map((f) => f.path + ": " + f.error).join("; ") : ""}` };
 			}
 			if (action === "setpath") {
@@ -688,6 +770,14 @@ export function apply(ctx) {
 					? ` Moved ${mv.moved} file(s), skipped ${mv.skipped}${mv.error ? "; error: " + mv.error : ""}.`
 					: "";
 				return { ok: true, text: `Library location set to ${target}.${detail}` };
+			}
+			if (action === "delete") {
+				if (!args.id) throw new Error("action=delete requires an id (use action=list first)");
+				const mode = args.mode === "file" ? "file" : "record";
+				const outcome = deleteBook(state, String(args.id), mode);
+				return { ok: true, text: mode === "file"
+					? `Deleted ${outcome.deletedFileName} from the shelf and disk (file gone: ${outcome.fileGone}).`
+					: `Removed ${outcome.deletedFileName} from the shelf; the file is kept on disk.` };
 			}
 			throw new Error("Unknown action: " + action);
 		},
