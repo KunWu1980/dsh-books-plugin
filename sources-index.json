@@ -2,8 +2,8 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T21:28:41.854Z",
-  "fetchedAt": "2026-11-27T21:28:22.735Z",
+  "updatedAt": "2026-11-27T22:01:57.244Z",
+  "fetchedAt": "2026-11-27T22:01:33.867Z",
   "count": 30,
   "activeCount": 7,
   "sources": [
@@ -31,8 +31,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 242,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 309,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -61,8 +61,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 2205,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 1840,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -91,8 +91,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 342,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 247,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -121,8 +121,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 114,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 324,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -151,8 +151,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 89,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 352,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -182,8 +182,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 421,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 430,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -213,8 +213,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 194,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 188,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -244,8 +244,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 182,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 184,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -272,8 +272,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 165,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 182,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -304,8 +304,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 130,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 150,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -332,8 +332,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 139,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 207,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -361,8 +361,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 348,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 390,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "note": "via curl fallback",
         "probedFrom": "local"
@@ -390,8 +390,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 288,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 282,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -418,8 +418,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 163,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 351,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -446,8 +446,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 583,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 2052,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -474,8 +474,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 546,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 609,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -502,8 +502,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 193,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 202,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -530,8 +530,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 557,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 540,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -558,8 +558,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 356,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 257,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -586,8 +586,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 399,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 439,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -614,8 +614,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 140,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 251,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -642,8 +642,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 160,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 168,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -670,9 +670,9 @@
       "health": {
         "ok": false,
         "httpStatus": 400,
-        "latencyMs": 75,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
-        "okStreak": 5,
+        "latencyMs": 119,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
+        "okStreak": 6,
         "error": "unexpected status 400 (expected 200)",
         "probedFrom": "local"
       }
@@ -699,8 +699,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 486,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 577,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -727,8 +727,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 213,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 340,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -755,8 +755,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 118,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 159,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -783,8 +783,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 202,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 220,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -811,9 +811,9 @@
       "health": {
         "ok": false,
         "httpStatus": 502,
-        "latencyMs": 6135,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
-        "okStreak": 5,
+        "latencyMs": 6084,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
+        "okStreak": 6,
         "error": "unexpected status 502 (expected 200)",
         "probedFrom": "local"
       }
@@ -840,8 +840,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 2123,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 3170,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
@@ -868,8 +868,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 1622,
-        "checkedAt": "2026-11-27T21:28:22.735Z",
+        "latencyMs": 1572,
+        "checkedAt": "2026-11-27T22:01:33.867Z",
         "okStreak": 0,
         "probedFrom": "local"
       }
