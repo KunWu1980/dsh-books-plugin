@@ -73,6 +73,10 @@ window.__ModuleLoader__.load({
       nlcNoOcr: '本页没有可识别的文字', nlcLoadMore: '加载更多',
       nlcDisclaimer: '资源来自国家图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。',
       nlcPublish: '{n} · {p}',
+      // Online reading — per-source hints/disclaimers
+      onlineHintMap: '当前：{n} · 在线逐页浏览，不下载到本地',
+      gdHint: '广东省立中山图书馆 · 《广东通志》开放 OCR 全文（繁简对照，在线阅读）',
+      gdDisclaimer: '资源来自广东省立中山图书馆公开数字资源，OCR 文字供在线阅读，版权归原权利方所有。',
       // Multi-library source switcher (from dsh-library-sources weekly index)
       libSources: '图书馆源', libSourcesHint: '来源：各馆公开数字资源索引 · {d} 更新',
       libSourceActive: '可阅读', libSourceCandidate: '待接入', libSourceSoon: '该馆正在接入中：{n}',
@@ -145,6 +149,10 @@ window.__ModuleLoader__.load({
       nlcNoOcr: 'No recognizable text on this page', nlcLoadMore: 'Load more',
       nlcDisclaimer: 'Resources come from the National Library of China public digital collections, for online reading only; copyright remains with the respective rights holders.',
       nlcPublish: '{n} · {p}',
+      // Online reading — per-source hints/disclaimers
+      onlineHintMap: 'Source: {n} · browse page by page, never downloaded locally',
+      gdHint: 'Sun Yat-sen Library of Guangdong · open OCR full text of 广东通志 (traditional/simplified, online reading)',
+      gdDisclaimer: 'Resources come from the Sun Yat-sen Library of Guangdong public digital collections; OCR text is for online reading only; copyright remains with the respective rights holders.',
       // Multi-library source switcher (from dsh-library-sources weekly index)
       libSources: 'Library sources', libSourcesHint: 'From the public-library index · updated {d}',
       libSourceActive: 'Readable', libSourceCandidate: 'Coming soon', libSourceSoon: 'This library is being connected: {n}',
@@ -528,54 +536,67 @@ window.__ModuleLoader__.load({
 
       React.useEffect(() => { void loadSources(false); }, [loadSources]);
 
-      // ---- National Library online reading functions ----
-      const nlcCatalog = React.useCallback(async () => {
+      // ---- Online reading functions (source-aware: nlc = images, gd = text) ----
+      const isGd = () => libSourceId === 'guangdong' || String(libSourceId).startsWith('gd');
+
+      const nlcCatalog = React.useCallback(async (sourceOverride) => {
         setNlcLoading(true); setNlcStatus('loading'); setNlcBook(null);
         try {
-          const data = await api('nlc/catalog?page=1&rows=30');
+          const sid = sourceOverride || libSourceId;
+          const data = (sid === 'guangdong' || String(sid).startsWith('gd'))
+            ? await api('gd/catalog?page=1&rows=100')
+            : await api('nlc/catalog?page=1&rows=30');
           setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
-      }, []);
+      }, [libSourceId]);
 
       const nlcDoSearch = React.useCallback(async () => {
         const q = nlcQuery.trim();
         if (!q) return;
         setNlcLoading(true); setNlcStatus('loading'); setNlcBook(null);
         try {
-          const data = await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
+          const data = isGd()
+            ? await api('gd/search?q=' + encodeURIComponent(q) + '&page=1&rows=100')
+            : await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
           setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
-      }, [nlcQuery]);
+      }, [nlcQuery, libSourceId]);
 
       const nlcOpenBook = React.useCallback(async (book) => {
         setNlcLoading(true); setNlcStatus('loading');
         try {
-          const meta = await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
+          const data = isGd()
+            ? await api('gd/meta?treeId=' + encodeURIComponent(book.treeId || ''))
+            : await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
           setNlcBook({
-            sourceId: book.sourceId, volume: book.volume || '001',
-            title: meta.title || book.title || book.section || '',
-            pageCount: meta.pageCount || 1,
-            identifier: meta.identifier || '',
+            sourceId: book.sourceId, treeId: book.treeId || '',
+            volume: book.volume || '001',
+            title: data.title || book.title || book.section || '',
+            author: data.author || '',
+            pageCount: data.pageCount || 1,
+            identifier: data.identifier || '',
           });
           setNlcPageNo(1);
           setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
-      }, []);
+      }, [libSourceId]);
 
       const nlcLoadPage = React.useCallback(async (pn) => {
         if (!nlcBook) return;
         const target = Math.max(1, Math.min(nlcBook.pageCount, pn));
         setNlcPageLoading(true); setNlcPageNo(target);
         try {
-          const data = await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
-            + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
-          setNlcPageData({ filePath: data.filePath, text: data.text || '' });
+          const data = isGd()
+            ? await api('gd/page?treeId=' + encodeURIComponent(nlcBook.treeId) + '&page=' + target)
+            : await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
+              + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
+          setNlcPageData({ filePath: data.filePath || '', text: data.text || '' });
         } catch (e) { setErrorText(String(e && e.message || e)); }
         finally { setNlcPageLoading(false); }
-      }, [nlcBook]);
+      }, [nlcBook, libSourceId]);
 
       // Load page 1 whenever a book is opened.
       React.useEffect(() => {
@@ -992,7 +1013,9 @@ window.__ModuleLoader__.load({
             h('div', { className: 'books-src-strip' },
               h('span', { style: { fontSize: 12, color: C.muted, marginRight: 4 } }, t('libSources') + ':'),
               libSources.map((s) => {
-                const ready = s.adapter && s.adapter !== 'none';
+                // Locally installed adapters can make a stale index entry readable.
+                const localAdapters = { nlc: true, guangdong: true };
+                const ready = (s.adapter && s.adapter !== 'none') || Boolean(localAdapters[s.id]);
                 const health = s.health && typeof s.health.ok === 'boolean' ? s.health.ok : null;
                 const active = libSourceId === s.id;
                 return h('div', {
@@ -1002,8 +1025,8 @@ window.__ModuleLoader__.load({
                   onClick: () => {
                     if (!ready) return;
                     setLibSourceId(s.id);
-                    setNlcBook(null); setNlcPageData(null);
-                    void nlcCatalog();
+                    setNlcBook(null); setNlcPageData(null); setNlcList([]);
+                    void nlcCatalog(s.id);
                   },
                 },
                   h('span', { className: 'books-src-name' }, s.name || s.id),
@@ -1019,8 +1042,10 @@ window.__ModuleLoader__.load({
               t('libSourcesHint').replace('{d}', String(libSourceMeta.updatedAt).slice(0, 10))
               + (libSourceMeta.origin ? ' · ' + t('libSourceOrigin').replace('{n}', libSourceMeta.origin) : ''),
             ),
-            h('div', { className: 'books-hint' }, t('nlcHint')),
-            h('div', { className: 'books-nlc-disclaimer' }, t('nlcDisclaimer')),
+            h('div', { className: 'books-hint' },
+              (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdHint') : t('nlcHint')),
+            h('div', { className: 'books-nlc-disclaimer' },
+              (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdDisclaimer') : t('nlcDisclaimer')),
             nlcBook
               ? h('div', { className: 'books-nlc-page-wrap' },
                   h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', margin: '6px 0' } },

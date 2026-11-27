@@ -2,10 +2,10 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T15:54:25.264Z",
-  "fetchedAt": "2026-11-27T15:54:23.311Z",
+  "updatedAt": "2026-11-28T00:20:22.000Z",
+  "fetchedAt": "2026-11-28T00:20:22.000Z",
   "count": 6,
-  "activeCount": 1,
+  "activeCount": 2,
   "sources": [
     {
       "id": "nlc",
@@ -42,19 +42,19 @@
       "region": "广东",
       "category": "古籍/地方文献/华侨报刊",
       "priority": 1,
-      "status": "candidate",
+      "status": "active",
       "access": "anonymous",
       "homepage": "https://www.zslib.com.cn/",
       "capabilities": [
         "browse",
         "metadata",
-        "link"
+        "read"
       ],
-      "adapter": "none",
-      "adapterNote": "公开 API：POST https://www.zslib.com.cn/Api/GetRlmsList，body {\"cate\":\"gj\",\"page\":1,\"pageSize\":20}（cate=gj/dfwx/tszy/wwzy/ysp/sw），返回 list[].libs[0].{onlyid,needLogin,url}；needLogin=N 即匿名可读；跳转 /jump?onlyid=...&appid=...。逐页图片接口需抓包。",
+      "adapter": "builtin:gd",
+      "adapterNote": "已接入：广东通志开放 OCR 全文。GET 183.63.187.55/prod-api/client/tree/list?type=1（25 个带 mediaId 的叶子）；getMediaTrees 取书名/作者；listFiles + getFileContentPunc 取繁简 OCR 全文。纯文本逐页阅读，无需破解图片 AES。",
       "license": "公版古籍/民国报刊",
-      "rightsNote": "仅收录 API 标记 needLogin=N 的公开资源",
-      "effort": "0.5-1 人日（元数据层易，逐页需抓包）",
+      "rightsNote": "仅在线阅读公开 OCR 文本，不下载图片、不落盘",
+      "effort": "已接入（文本适配器）",
       "addedAt": "2026-11-27",
       "health": {
         "ok": true,

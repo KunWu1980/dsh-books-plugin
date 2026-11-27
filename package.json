@@ -13,6 +13,7 @@
   "files": [
     "index.js",
     "nlc.js",
+    "guangdong.js",
     "sources.js",
     "sources-index.json",
     "client.js",
