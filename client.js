@@ -96,6 +96,7 @@ window.__ModuleLoader__.load({
       libSourceActive: '可阅读', libSourceCandidate: '待接入', libSourceSoon: '该馆正在接入中：{n}',
       libSourceHealthy: '可访问', libSourceDown: '暂不可访问', libSourceOrigin: '索引来源：{n}',
       libSourceRefresh: '刷新源', libSourceNoAdapter: '此馆尚未配置阅读适配器，敬请期待。',
+      libSourceFlagged: '需关注（连续 {n} 次巡检失败）', libSourceHealth: '巡检 {n}',
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
@@ -186,6 +187,7 @@ window.__ModuleLoader__.load({
       libSourceActive: 'Readable', libSourceCandidate: 'Coming soon', libSourceSoon: 'This library is being connected: {n}',
       libSourceHealthy: 'Online', libSourceDown: 'Unavailable', libSourceOrigin: 'Index source: {n}',
       libSourceRefresh: 'Refresh sources', libSourceNoAdapter: 'No reading adapter for this library yet. Stay tuned.',
+      libSourceFlagged: 'Needs attention ({n} consecutive probe failures)', libSourceHealth: 'Probe {n}',
     };
 
     const C = {
@@ -216,6 +218,9 @@ window.__ModuleLoader__.load({
       .books-src-dot{width:6px;height:6px;border-radius:50%;background:${C.muted};}
       .books-src-dot.ok{background:#2e9b5b;}
       .books-src-dot.bad{background:${C.error};}
+      .books-src-chip{border-color:${C.border};}
+      .books-src-chip.flagged{border-color:${C.error};}
+      .books-src-flag{font-size:10px;color:${C.error};font-weight:600;margin-left:6px;}
       .books-nlc-search{display:flex;gap:8px;margin-bottom:10px;}
       .books-nlc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
       .books-nlc-card{padding:12px;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};cursor:pointer;}
@@ -1094,11 +1099,20 @@ window.__ModuleLoader__.load({
                 const localAdapters = { nlc: true, guangdong: true, shaanxi: true, jiangsu: true, hunan: true, baotu: true, qinhai: true };
                 const ready = (s.adapter && s.adapter !== 'none') || Boolean(localAdapters[s.id]);
                 const health = s.health && typeof s.health.ok === 'boolean' ? s.health.ok : null;
+                const streak = s.health && Number.isFinite(s.health.okStreak) && s.health.okStreak > 0 ? s.health.okStreak : 0;
+                const probedFrom = s.health && s.health.probedFrom ? s.health.probedFrom : null;
+                // A source is health-flagged when a China-vantage probe shows failures.
+                const flagged = health === false || streak >= 2;
                 const active = libSourceId === s.id;
+                const chipTip = [
+                  ready ? (s.name + (s.adapterNote ? '\n' + s.adapterNote : '')) : t('libSourceNoAdapter'),
+                  flagged ? ('\n' + t('libSourceFlagged').replace('{n}', String(health === false && streak === 0 ? 1 : streak))) : '',
+                  probedFrom ? ('\n' + t('libSourceHealth').replace('{n}', probedFrom)) : '',
+                ].join('');
                 return h('div', {
                   key: s.id,
-                  className: 'books-src-chip' + (active ? ' active' : '') + (ready ? '' : ' disabled'),
-                  title: ready ? (s.name + (s.adapterNote ? '\n' + s.adapterNote : '')) : t('libSourceNoAdapter'),
+                  className: 'books-src-chip' + (active ? ' active' : '') + (ready ? '' : ' disabled') + (flagged ? ' flagged' : ''),
+                  title: chipTip || undefined,
                   onClick: () => {
                     if (!ready) return;
                     setLibSourceId(s.id);
@@ -1111,6 +1125,7 @@ window.__ModuleLoader__.load({
                     h('i', { className: 'books-src-dot' + (health === true ? ' ok' : health === false ? ' bad' : '') }),
                     ready ? t('libSourceActive') : t('libSourceCandidate'),
                   ),
+                  flagged && h('span', { className: 'books-src-flag' }, '⚠ ' + streak),
                 );
               }),
               h('button', { className: 'books-btn', style: { marginLeft: 4 }, onClick: () => void loadSources(true) }, t('libSourceRefresh')),

@@ -168,5 +168,7 @@
   "libSourceDown": "暂不可访问",
   "libSourceOrigin": "索引来源：{n}",
   "libSourceRefresh": "刷新源",
-  "libSourceNoAdapter": "此馆尚未配置阅读适配器，敬请期待。"
+  "libSourceNoAdapter": "此馆尚未配置阅读适配器，敬请期待。",
+  "libSourceFlagged": "需关注（连续 {n} 次巡检失败）",
+  "libSourceHealth": "巡检 {n}"
 }

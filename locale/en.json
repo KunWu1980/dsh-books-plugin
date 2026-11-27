@@ -168,5 +168,7 @@
   "libSourceDown": "Unavailable",
   "libSourceOrigin": "Index source: {n}",
   "libSourceRefresh": "Refresh sources",
-  "libSourceNoAdapter": "No reading adapter for this library yet. Stay tuned."
+  "libSourceNoAdapter": "No reading adapter for this library yet. Stay tuned.",
+  "libSourceFlagged": "Needs attention ({n} consecutive probe failures)",
+  "libSourceHealth": "Probe {n}"
 }
