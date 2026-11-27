@@ -16,6 +16,7 @@ import * as gd from "./guangdong.js";
 import * as sx from "./shaanxi.js";
 import * as js from "./jiangsu.js";
 import * as hn from "./hunan.js";
+import * as bt from "./baotu.js";
 import * as sources from "./sources.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -1014,6 +1015,40 @@ async function handleApi(request, state) {
 			});
 		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
 	}
+	if (p === "/api/books/bt/catalog" && method === "GET") {
+		try {
+			return jsonResponse(await bt.btCatalog(parseInt(url.searchParams.get("page") || "1", 10), parseInt(url.searchParams.get("rows") || "50", 10)));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/bt/search" && method === "GET") {
+		try {
+			return jsonResponse(await bt.btSearch(url.searchParams.get("q") || "", parseInt(url.searchParams.get("page") || "1", 10), parseInt(url.searchParams.get("rows") || "50", 10)));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/bt/meta" && method === "GET") {
+		try {
+			return jsonResponse(await bt.btBookMeta(url.searchParams.get("chapterId") || ""));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/bt/page" && method === "GET") {
+		try {
+			return jsonResponse(await bt.btPage(url.searchParams.get("chapterId") || "", url.searchParams.get("page") || 1));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/bt/image" && method === "GET") {
+		try {
+			const r = await bt.btImage(url.searchParams.get("file") || "");
+			if (!r.ok) return jsonResponse({ ok: false, error: r.error }, 400);
+			return new Response(r.bytes, {
+				status: 200,
+				headers: {
+					"content-type": "image/jpeg",
+					"cache-control": "public, max-age=86400",
+					"content-length": String(r.bytes.length),
+				},
+			});
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
 	return jsonResponse({ ok: false, error: "Unknown route" }, 404);
 }
 
@@ -1074,7 +1109,7 @@ export function apply(ctx) {
 			if (registered || stopped) return true;
 			const connection = ctx.get("connection");
 			if (!connection?.fetch?.register) return false;
-			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "sources", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image", "gd/catalog", "gd/search", "gd/meta", "gd/page", "sx/catalog", "sx/search", "sx/meta", "sx/page", "sx/image", "js/catalog", "js/search", "js/meta", "js/page", "js/image", "hn/catalog", "hn/search", "hn/meta", "hn/page", "hn/image"].map((name) =>
+			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "sources", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image", "gd/catalog", "gd/search", "gd/meta", "gd/page", "sx/catalog", "sx/search", "sx/meta", "sx/page", "sx/image", "js/catalog", "js/search", "js/meta", "js/page", "js/image", "hn/catalog", "hn/search", "hn/meta", "hn/page", "hn/image", "bt/catalog", "bt/search", "bt/meta", "bt/page", "bt/image"].map((name) =>
 				connection.fetch.register({
 					path: "/api/books/" + name,
 					methods: ["GET", "POST"],

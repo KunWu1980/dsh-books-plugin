@@ -27,13 +27,14 @@ const FALLBACK = {
   schema: 1,
   name: "dsh-library-sources",
   updatedAt: null,
-  count: 6,
-  activeCount: 4,
+  count: 7,
+  activeCount: 6,
   sources: [
     { id: "nlc", name: "国家图书馆·民国地方文献", region: "全国", category: "民国文献", priority: 0, status: "active", adapter: "builtin:nlc", capabilities: ["search", "browse", "page-image", "ocr-text"], rightsNote: "仅在线浏览，不下载、不落盘。" },
     { id: "jiangsu", name: "江苏省古籍数字资源平台", region: "江苏", category: "古籍", priority: 1, status: "active", adapter: "builtin:js", capabilities: ["browse", "search", "page-image"], adapterNote: "古书籍影像，单册直链逐页看图", rightsNote: "仅在线阅读，不下载、不落盘。" },
     { id: "guangdong", name: "广东省立中山图书馆·广东通志", region: "广东", category: "古籍/地方文献", priority: 1, status: "active", adapter: "builtin:gd", capabilities: ["browse", "metadata", "read"], adapterNote: "开放 OCR 全文，纯文本逐页阅读", rightsNote: "仅在线阅读，不下载、不落盘。" },
     { id: "shaanxi", name: "陕西省历史文献数据库", region: "陕西", category: "历史文献", priority: 1, status: "active", adapter: "builtin:sx", capabilities: ["browse", "search", "page-image"], adapterNote: "104 部古籍/方志，逐卷展平页码，图片阅读", rightsNote: "仅在线阅读，不下载、不落盘。" },
+    { id: "baotu", name: "广东省立中山图书馆·报图览粤", region: "广东", category: "画报", priority: 1, status: "active", adapter: "builtin:bt", capabilities: ["browse", "search", "page-image"], adapterNote: "清末民初广东画报 28 类图片故事，逐则看图", rightsNote: "仅在线阅读，不下载、不落盘。" },
     { id: "sichuan", name: "四川省图书馆·珍贵古籍", region: "四川", category: "古籍", priority: 1, status: "candidate", adapter: "none", adapterNote: "端点待逆向" },
     { id: "hunan", name: "湖南省图书馆古籍智慧化平台", region: "湖南", category: "古籍", priority: 2, status: "active", adapter: "builtin:hn", capabilities: ["browse", "search", "page-image", "ocr-text"], adapterNote: "古籍智慧化平台，逐页原图 + OCR 文本对照", rightsNote: "仅在线阅读，不下载、不落盘。" },
   ],
@@ -51,6 +52,7 @@ const LOCAL_ADAPTERS = {
   shaanxi: { adapter: "builtin:sx", status: "active" },
   jiangsu: { adapter: "builtin:js", status: "active" },
   hunan: { adapter: "builtin:hn", status: "active" },
+  baotu: { adapter: "builtin:bt", status: "active" },
 };
 
 function withLocalAdapters(data) {

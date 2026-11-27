@@ -85,6 +85,9 @@ window.__ModuleLoader__.load({
       jsNoVolume: '该书暂无适配的卷册可浏览。',
       hnHint: '湖南省图书馆 · 古籍智慧化平台（在线阅读：逐页原图 + OCR 文本对照）',
       hnDisclaimer: '资源来自湖南省图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。',
+      btHint: '广东省立中山图书馆 · 报图览粤（清末民初广东画报 28 类图片故事，逐则看图）',
+      btDisclaimer: '资源来自广东省立中山图书馆「报图览粤」公开画报影像，仅供在线阅读，版权归原权利方所有。',
+      btNoVolume: '该分类暂无画报条目。',
       // Multi-library source switcher (from dsh-library-sources weekly index)
       libSources: '图书馆源', libSourcesHint: '来源：各馆公开数字资源索引 · {d} 更新',
       libSourceActive: '可阅读', libSourceCandidate: '待接入', libSourceSoon: '该馆正在接入中：{n}',
@@ -169,6 +172,9 @@ window.__ModuleLoader__.load({
       jsNoVolume: 'No readable volume available for this title yet.',
       hnHint: 'Hunan Provincial Library · ancient books platform (online reading: page images + OCR text side by side)',
       hnDisclaimer: 'Resources come from the Hunan Provincial Library public digital collections, for online reading only; copyright remains with the respective rights holders.',
+      btHint: 'Sun Yat-sen Library of Guangdong · "Baotu Lanyue" (late-Qing/early-Republic Guangdong pictorial, 28 themed categories of image stories, browse image by image)',
+      btDisclaimer: 'Resources come from the Sun Yat-sen Library of Guangdong "Baotu Lanyue" public pictorial imagery, for online reading only; copyright remains with the respective rights holders.',
+      btNoVolume: 'No pictorial items in this category yet.',
       // Multi-library source switcher (from dsh-library-sources weekly index)
       libSources: 'Library sources', libSourcesHint: 'From the public-library index · updated {d}',
       libSourceActive: 'Readable', libSourceCandidate: 'Coming soon', libSourceSoon: 'This library is being connected: {n}',
@@ -557,6 +563,7 @@ window.__ModuleLoader__.load({
       const isSx = () => libSourceId === 'shaanxi' || String(libSourceId).startsWith('sx');
       const isJs = () => libSourceId === 'jiangsu' || String(libSourceId).startsWith('js');
       const isHn = () => libSourceId === 'hunan' || String(libSourceId).startsWith('hn');
+      const isBt = () => libSourceId === 'baotu' || String(libSourceId).startsWith('bt');
 
       const nlcCatalog = React.useCallback(async (sourceOverride) => {
         setNlcLoading(true); setNlcStatus('loading'); setNlcBook(null);
@@ -570,7 +577,9 @@ window.__ModuleLoader__.load({
                 ? await api('js/catalog?page=1&rows=30')
                 : isHn()
                   ? await api('hn/catalog?page=1&rows=30')
-                  : await api('nlc/catalog?page=1&rows=30');
+                  : isBt()
+                    ? await api('bt/catalog?page=1&rows=50')
+                    : await api('nlc/catalog?page=1&rows=30');
           setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
@@ -589,7 +598,9 @@ window.__ModuleLoader__.load({
                 ? await api('js/search?q=' + encodeURIComponent(q) + '&page=1&rows=40')
                 : isHn()
                   ? await api('hn/search?q=' + encodeURIComponent(q) + '&page=1&rows=40')
-                  : await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
+                  : isBt()
+                    ? await api('bt/search?q=' + encodeURIComponent(q) + '&page=1&rows=50')
+                    : await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
           setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
@@ -606,11 +617,14 @@ window.__ModuleLoader__.load({
                 ? await api('js/meta?id=' + encodeURIComponent(book.id || ''))
                 : isHn()
                   ? await api('hn/meta?id=' + encodeURIComponent(book.id || ''))
-                  : await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
+                  : isBt()
+                    ? await api('bt/meta?chapterId=' + encodeURIComponent(book.chapterId || ''))
+                    : await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
           setNlcBook({
             sourceId: book.sourceId, treeId: book.treeId || '',
             wholeId: book.wholeId || '',
             id: book.id || '',
+            chapterId: book.chapterId || '',
             volume: book.volume || '001',
             title: data.title || book.title || book.section || '',
             author: data.author || '',
@@ -636,8 +650,10 @@ window.__ModuleLoader__.load({
                 ? await api('js/page?id=' + encodeURIComponent(nlcBook.id) + '&page=' + target)
                 : isHn()
                   ? await api('hn/page?id=' + encodeURIComponent(nlcBook.id) + '&page=' + target)
-                  : await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
-                    + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
+                  : isBt()
+                    ? await api('bt/page?chapterId=' + encodeURIComponent(nlcBook.chapterId) + '&page=' + target)
+                    : await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
+                      + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
           setNlcPageData({ filePath: data.filePath || '', text: data.text || '' });
         } catch (e) { setErrorText(String(e && e.message || e)); }
         finally { setNlcPageLoading(false); }
@@ -1059,7 +1075,7 @@ window.__ModuleLoader__.load({
               h('span', { style: { fontSize: 12, color: C.muted, marginRight: 4 } }, t('libSources') + ':'),
               libSources.map((s) => {
                 // Locally installed adapters can make a stale index entry readable.
-                const localAdapters = { nlc: true, guangdong: true, shaanxi: true, jiangsu: true, hunan: true };
+                const localAdapters = { nlc: true, guangdong: true, shaanxi: true, jiangsu: true, hunan: true, baotu: true };
                 const ready = (s.adapter && s.adapter !== 'none') || Boolean(localAdapters[s.id]);
                 const health = s.health && typeof s.health.ok === 'boolean' ? s.health.ok : null;
                 const active = libSourceId === s.id;
@@ -1092,13 +1108,15 @@ window.__ModuleLoader__.load({
                 : (libSourceId === 'shaanxi' || String(libSourceId).startsWith('sx')) ? t('sxHint')
                   : (libSourceId === 'jiangsu' || String(libSourceId).startsWith('js')) ? t('jsHint')
                     : (libSourceId === 'hunan' || String(libSourceId).startsWith('hn')) ? t('hnHint')
-                      : t('nlcHint')),
+                      : (libSourceId === 'baotu' || String(libSourceId).startsWith('bt')) ? t('btHint')
+                        : t('nlcHint')),
             h('div', { className: 'books-nlc-disclaimer' },
               (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdDisclaimer')
                 : (libSourceId === 'shaanxi' || String(libSourceId).startsWith('sx')) ? t('sxDisclaimer')
                   : (libSourceId === 'jiangsu' || String(libSourceId).startsWith('js')) ? t('jsDisclaimer')
                     : (libSourceId === 'hunan' || String(libSourceId).startsWith('hn')) ? t('hnDisclaimer')
-                      : t('nlcDisclaimer')),
+                      : (libSourceId === 'baotu' || String(libSourceId).startsWith('bt')) ? t('btDisclaimer')
+                        : t('nlcDisclaimer')),
             nlcBook
               ? h('div', { className: 'books-nlc-page-wrap' },
                   h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', margin: '6px 0' } },
@@ -1114,7 +1132,8 @@ window.__ModuleLoader__.load({
                   nlcPageData && (nlcPageData.filePath || isHn()) && h('img', {
                     className: 'books-nlc-page-img',
                     src: isHn() ? '/api/books/hn/image?id=' + encodeURIComponent(nlcBook.id) + '&page=' + nlcPageNo
-                      : (isJs() ? '/api/books/js/image?file='
+                      : (isBt() ? '/api/books/bt/image?file='
+                      : isJs() ? '/api/books/js/image?file='
                       : isSx() ? '/api/books/sx/image?file='
                         : '/api/books/nlc/image?file=') + encodeURIComponent(nlcPageData.filePath),
                     alt: t('nlcPageOf').replace('{n}', nlcPageNo).replace('{total}', nlcBook.pageCount),
