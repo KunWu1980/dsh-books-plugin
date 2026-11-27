@@ -42,6 +42,14 @@ window.__ModuleLoader__.load({
       deleteFile: '从书架移除并删除本地文件', deleteFileNote: '书籍记录和书库目录中的文件都会被永久删除，此操作不可撤销。',
       deleteDone: '已从书架移除《{n}》', deleteFileDone: '已删除《{n}》及其本地文件', deleteFailed: '删除失败',
       confirmDelete: '确认删除', deleteWarn: '此操作不可撤销，请谨慎选择。',
+      typography: '排版', typoPreset: '预设', typoGov: '公文标准 22×28', typoComfort: '舒适', typoCompact: '紧凑', typoLarge: '大字', typoAuto: '自适应屏幕',
+      typoLines: '每页行数', typoChars: '每行字数', typoLineHeight: '行距', typoFont: '字体',
+      typoIndent: '首行缩进 2 字', typoJustify: '两端对齐',
+      typoFontFangsong: '仿宋', typoFontSong: '宋体', typoFontHei: '黑体', typoFontKai: '楷体', typoFontSystem: '系统默认',
+      typoInfo: '字号 {size}px · {lines} 行 × {chars} 字 · 版心 {w}×{h}',
+      typoRule: '默认依据《党政机关公文格式》GB/T 9704-2012：正文仿宋，每面 22 行、每行 28 字，行距 1.75 倍。字号随窗口自动缩放以保持该行数/字数。',
+      typoSaved: '排版已保存', typoCustom: '自定义',
+      typoLimited: '（窗口较小，已自动缩减）',
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
@@ -78,6 +86,14 @@ window.__ModuleLoader__.load({
       deleteFile: 'Remove from shelf and delete local file', deleteFileNote: 'Both the shelf record and the file in the library folder are permanently deleted. This cannot be undone.',
       deleteDone: 'Removed "{n}" from the shelf', deleteFileDone: 'Deleted "{n}" and its local file', deleteFailed: 'Delete failed',
       confirmDelete: 'Confirm delete', deleteWarn: 'This cannot be undone; please choose carefully.',
+      typography: 'Typography', typoPreset: 'Preset', typoGov: 'Official 22×28', typoComfort: 'Comfort', typoCompact: 'Compact', typoLarge: 'Large', typoAuto: 'Fit screen',
+      typoLines: 'Lines per page', typoChars: 'Characters per line', typoLineHeight: 'Line spacing', typoFont: 'Typeface',
+      typoIndent: 'Indent first line (2em)', typoJustify: 'Justify',
+      typoFontFangsong: 'FangSong', typoFontSong: 'SimSun', typoFontHei: 'SimHei', typoFontKai: 'KaiTi', typoFontSystem: 'System default',
+      typoInfo: '{size}px · {lines} lines × {chars} chars · page {w}×{h}',
+      typoRule: 'Defaults follow GB/T 9704-2012 (Chinese official document format): FangSong body, 22 lines per page, 28 characters per line, 1.75x line spacing. The font size scales with the window so that line/character counts stay exact.',
+      typoSaved: 'Typography saved', typoCustom: 'Custom',
+      typoLimited: '(auto-reduced to fit the window)',
     };
 
     const C = {
@@ -123,9 +139,25 @@ window.__ModuleLoader__.load({
       .books-chapter-all.active{border-color:${C.brand};color:${C.brand};}
       .books-loadmore{display:block;margin:16px auto;padding:8px 18px;border:1px solid ${C.border};background:${C.layer1};color:${C.brand};border-radius:6px;font-size:13px;cursor:pointer;}
       .books-loadmore:hover{border-color:${C.brand};}
-      .books-text-viewport{height:calc(100vh - 300px);min-height:340px;overflow-y:auto;scroll-behavior:smooth;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};padding:0 20px;box-sizing:border-box;}
-      .books-text{line-height:1.9;white-space:pre-wrap;word-break:break-word;font-size:15px;}
-      .books-text h2{font-size:17px;font-weight:600;margin:22px 0 8px;}
+      .books-text-frame{height:calc(100vh - 300px);min-height:340px;display:flex;justify-content:center;align-items:flex-start;overflow:hidden;}
+      .books-text-viewport{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};padding:0 24px;box-sizing:border-box;}
+      .books-text{white-space:pre-wrap;word-break:break-word;margin:0 auto;}
+      .books-text p{margin:0;padding:0;}
+      .books-text h2{font-size:1.08em;font-weight:600;margin:1.5em 0 .6em;}
+      .books-typo-bar{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+      .books-typo-info{font-size:12px;color:${C.faint};}
+      .books-typo-panel{border:1px solid ${C.border};background:${C.layer1};border-radius:8px;padding:12px;margin-bottom:14px;}
+      .books-typo-row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap;}
+      .books-typo-label{font-size:12px;color:${C.muted};min-width:96px;}
+      .books-typo-presets{display:flex;gap:6px;flex-wrap:wrap;}
+      .books-typo-preset{border:1px solid ${C.border};background:${C.bg};color:${C.muted};border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;}
+      .books-typo-preset:hover{border-color:${C.brand};color:${C.brand};}
+      .books-typo-preset.active{border-color:${C.brand};color:${C.brand};font-weight:600;}
+      .books-typo-range{flex:1;min-width:120px;accent-color:${C.brand};}
+      .books-typo-num{width:64px;border:1px solid ${C.border};background:${C.bg};color:${C.text};border-radius:6px;padding:4px 8px;font-size:12px;outline:none;}
+      .books-typo-num:focus{border-color:${C.brand};}
+      .books-typo-select{border:1px solid ${C.border};background:${C.bg};color:${C.text};border-radius:6px;padding:4px 8px;font-size:12px;outline:none;cursor:pointer;}
+      .books-typo-note{font-size:11px;color:${C.faint};line-height:1.6;margin-top:4px;}
       .books-warn{background:${C.layer2};border:1px solid ${C.border};border-radius:6px;padding:10px 12px;color:${C.muted};font-size:13px;margin-bottom:16px;}
       .books-import-box{border:1px solid ${C.border};background:${C.layer1};border-radius:8px;padding:12px;margin-bottom:14px;}
       .books-import-box textarea{width:100%;box-sizing:border-box;min-height:64px;resize:vertical;border:1px solid ${C.border};background:${C.bg};color:${C.text};border-radius:6px;padding:8px;font-size:13px;outline:none;}
@@ -172,6 +204,107 @@ window.__ModuleLoader__.load({
       .books-del-note{font-size:12px;color:${C.faint};margin-top:2px;line-height:1.5;}
       .books-del-warn{font-size:12px;color:${C.error};margin:8px 0;}
     `;
+
+    // ---- Reading typography -------------------------------------------------
+    // GB/T 9704-2012 (党政机关公文格式): 正文三号仿宋, 每面 22 行, 每行 28 字,
+    // 行距 28 磅 (1.75 倍). On screen the page (版心) is emulated instead of
+    // fixed in millimetres: "每行字数" pins the measure, the font size is then
+    // derived from the available width, and shrunk when the requested number
+    // of lines would not fit the available height.
+    const TYPO_PRESETS = {
+      gov: { lines: 22, chars: 28, lineHeight: 1.75, font: 'fangsong', indent: true, justify: true },
+      comfort: { lines: 20, chars: 36, lineHeight: 1.9, font: 'song', indent: true, justify: true },
+      compact: { lines: 26, chars: 42, lineHeight: 1.6, font: 'system', indent: true, justify: true },
+      large: { lines: 14, chars: 24, lineHeight: 2.0, font: 'kai', indent: true, justify: true },
+      auto: { lines: 0, chars: 0, lineHeight: 1.8, font: 'system', indent: true, justify: true },
+    };
+    const TYPO_FONTS = {
+      fangsong: '"FangSong","仿宋","FangSong_GB2312","STFangsong",serif',
+      song: '"SimSun","宋体","Songti SC","STSong",serif',
+      hei: '"SimHei","黑体","Heiti SC","PingFang SC","Microsoft YaHei",sans-serif',
+      kai: '"KaiTi","楷体","KaiTi_GB2312","STKaiti",serif',
+      system: 'inherit',
+    };
+    const TYPO_DEFAULT = { preset: 'gov', lines: 22, chars: 28, lineHeight: 1.75, font: 'fangsong', indent: true, justify: true };
+
+    function clampNumber(value, lo, hi, fallback) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.min(hi, Math.max(lo, n));
+    }
+
+    /**
+     * Turn a typography preference plus the measured text area into concrete
+     * pixel metrics. Pure: the same input always yields the same output, which
+     * keeps the pager stable across re-renders.
+     */
+    function computeLayout(typo, box) {
+      const width = Math.max(160, (box && box.width) || 640);
+      const height = Math.max(200, (box && box.height) || 480);
+      const lineHeight = clampNumber(typo && typo.lineHeight, 1.2, 2.6, 1.75);
+      let lines = Math.round(clampNumber(typo && typo.lines, 6, 40, 22));
+      let chars = Math.round(clampNumber(typo && typo.chars, 16, 60, 28));
+      if (typo && typo.preset === 'auto') {
+        // Keep a comfortable body size (~17px) and fit as many lines and
+        // characters as the window allows.
+        const target = 17;
+        chars = Math.round(clampNumber(Math.floor(width / target), 18, 60, 32));
+        lines = Math.round(clampNumber(Math.floor(height / (target * lineHeight)), 8, 40, 20));
+      }
+      // Fit both asks at once: the measure (chars per line) and the page
+      // height (lines per page). A larger font means fewer chars and fewer
+      // lines, so the body size is the smaller of the two constraints,
+      // clamped to a legible range. If the window is too small for both, the
+      // page is trimmed instead of shrinking the type below MIN_FONT.
+      const MIN_FONT = 13;
+      const MAX_FONT = 28;
+      const fontSize = clampNumber(
+        Math.min(width / chars, height / (lines * lineHeight)),
+        MIN_FONT, MAX_FONT, 17,
+      );
+      if (chars * fontSize > width) {
+        chars = Math.max(16, Math.floor(width / fontSize));
+      }
+      const linePx = fontSize * lineHeight;
+      const maxLines = Math.max(6, Math.floor(height / linePx));
+      if (lines > maxLines) lines = maxLines;
+      return {
+        lines,
+        chars,
+        lineHeight,
+        fontSize: Math.round(fontSize * 100) / 100,
+        linePx: Math.round(linePx * 100) / 100,
+        textWidth: Math.round(chars * fontSize),
+        viewportHeight: Math.round(lines * linePx),
+      };
+    }
+
+    /**
+     * Decides whether a book's text is "one paragraph per line" (typical for
+     * TXT/EPUB/AZW3 exports) or hard-wrapped visual lines (typical for PDFs).
+     * Only the former gets per-paragraph first-line indentation, because
+     * indenting every wrapped PDF line would look broken.
+     */
+    function looksParagraphic(chapters) {
+      // Judge on body text, not front matter: skip the first 30% of chapters
+      // (cover, copyright, table of contents) where lines rarely end in a
+      // sentence mark, then collect up to 60 non-empty lines.
+      const list = chapters || [];
+      const start = Math.floor(list.length * 0.3);
+      const lines = [];
+      for (let i = start; i < list.length && lines.length < 60; i += 1) {
+        const text = String((list[i] && list[i].text) || '');
+        if (!text.trim()) continue;
+        const chunk = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+        for (const line of chunk) {
+          lines.push(line);
+          if (lines.length >= 60) break;
+        }
+      }
+      if (lines.length < 8) return true;
+      const terminated = lines.filter((l) => /[。！？…”』」】)]$/.test(l)).length;
+      return terminated / lines.length >= 0.5;
+    }
 
     function BooksIcon(props) {
       const size = props && typeof props.size === 'number' ? props.size : 18;
@@ -228,6 +361,12 @@ window.__ModuleLoader__.load({
       const [categorizeBook, setCategorizeBook] = React.useState(null); // book object
       const [deleteBook, setDeleteBook] = React.useState(null);   // book object pending deletion
       const [deleteMode, setDeleteMode] = React.useState('record'); // record|file
+      // Typography
+      const [typo, setTypo] = React.useState(TYPO_DEFAULT);
+      const [layout, setLayout] = React.useState(null);   // computed px metrics
+      const [showTypo, setShowTypo] = React.useState(false);
+      const textFrameRef = React.useRef(null);
+      const typoTimer = React.useRef(null);
 
       const loadList = React.useCallback(async () => {
         setStatus('loading');
@@ -240,6 +379,7 @@ window.__ModuleLoader__.load({
           setIsCustom(Boolean(data.isCustom));
           setBooks(data.books || []);
           setCategories(data.categories || []);
+          if (data.typography) setTypo({ ...TYPO_DEFAULT, ...data.typography });
           setStatus('idle');
         } catch (e) {
           setErrorText(String(e && e.message || e));
@@ -278,7 +418,35 @@ window.__ModuleLoader__.load({
         return () => window.removeEventListener('keydown', onKey);
       }, [reader, textPageCount]);
 
-      // Recompute how many screen-height pages the current text occupies.
+      // Measure the available text area and turn the typography preference
+      // into concrete pixel metrics (font size, line height, page box).
+      // Height comes from the frame (fixed by CSS, so it cannot feed back),
+      // width from the viewport's clientWidth, which already excludes the
+      // vertical scrollbar.
+      React.useEffect(() => {
+        if (!reader || reader.mode === 'images') { setLayout(null); return; }
+        const frame = textFrameRef.current;
+        if (!frame) return;
+        const update = () => {
+          const vp = textViewportRef.current;
+          const width = (vp ? vp.clientWidth : frame.clientWidth) - 48;
+          const next = computeLayout(typo, { width, height: frame.clientHeight });
+          setLayout((prev) => (prev && prev.lines === next.lines && prev.chars === next.chars
+            && prev.fontSize === next.fontSize && prev.viewportHeight === next.viewportHeight
+            && prev.textWidth === next.textWidth && prev.lineHeight === next.lineHeight ? prev : next));
+        };
+        update();
+        const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+        if (ro) {
+          ro.observe(frame);
+          if (textViewportRef.current) ro.observe(textViewportRef.current);
+        }
+        return () => { if (ro) ro.disconnect(); };
+      }, [reader, typo, status]);
+
+      // Recompute how many pages the current text occupies. Paging is one
+      // viewport height at a time, so with a page box of exactly N lines each
+      // page always holds N lines.
       React.useEffect(() => {
         if (!reader || reader.mode === 'images') return;
         const vp = textViewportRef.current;
@@ -286,12 +454,45 @@ window.__ModuleLoader__.load({
         const update = () => {
           const pages = Math.max(1, Math.ceil(vp.scrollHeight / Math.max(1, vp.clientHeight)));
           setTextPageCount(pages);
+          setTextPage((p) => Math.min(p, pages - 1));
         };
         update();
         const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
         if (ro) ro.observe(vp);
         return () => { if (ro) ro.disconnect(); };
-      }, [reader, chapter, visibleCount, status]);
+      }, [reader, chapter, visibleCount, status, layout]);
+
+      // Persist typography edits (debounced: dragging a slider must not write
+      // the config file on every pixel).
+      const persistTypo = React.useCallback((next) => {
+        if (typoTimer.current) clearTimeout(typoTimer.current);
+        typoTimer.current = setTimeout(() => {
+          api('config', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ typography: next }),
+          }).then((data) => {
+            if (data && data.typography) setTypo((prev) => ({ ...prev, ...data.typography }));
+          }).catch(() => { /* best effort */ });
+        }, 400);
+      }, []);
+
+      React.useEffect(() => () => { if (typoTimer.current) clearTimeout(typoTimer.current); }, []);
+
+      const updateTypo = (patch) => {
+        const next = { ...typo, ...patch };
+        if (!('preset' in patch)) next.preset = 'custom';
+        setTypo(next);
+        persistTypo(next);
+      };
+
+      const applyPreset = (id) => {
+        const base = TYPO_PRESETS[id] || TYPO_PRESETS.gov;
+        const next = { ...typo, ...base, preset: id };
+        setTypo(next);
+        persistTypo(next);
+        setShowTypo(true);
+      };
 
       const mutateCat = async (action, payload) => {
         setStatus('loading');
@@ -498,6 +699,8 @@ window.__ModuleLoader__.load({
       const wholeBook = chapter < 0;
       const renderedChapters = wholeBook ? chapters.slice(0, visibleCount) : chapters.slice(chapter, chapter + 1);
       const remaining = chapters.length - visibleCount;
+      // Indent per paragraph only when the text really is paragraph-per-line.
+      const paragraphic = React.useMemo(() => looksParagraphic(chapters), [reader]);
 
       return h('div', { className: 'books-root' },
         h('style', null, STYLES),
@@ -745,21 +948,118 @@ window.__ModuleLoader__.load({
                 chapters.map((ch, i) => h('option', { key: i, value: i }, (i + 1) + '. ' + (ch.heading || t('untitled')))),
               ),
             ),
-            reader.mode !== 'images' && h('div', {
-              className: 'books-text-viewport',
-              ref: textViewportRef,
-              onScroll: (e) => {
-                const vp = e.currentTarget;
-                setTextPage(Math.min(textPageCount - 1, Math.round(vp.scrollTop / Math.max(1, vp.clientHeight))));
+            reader.mode !== 'images' && h('div', { className: 'books-typo-bar' },
+              h('button', {
+                className: 'books-chapter-all' + (showTypo ? ' active' : ''),
+                onClick: () => setShowTypo((v) => !v),
+              }, 'Aa ' + t('typography')),
+              layout && h('span', { className: 'books-typo-info' },
+                t('typoInfo')
+                  .replace('{size}', layout.fontSize)
+                  .replace('{lines}', layout.lines)
+                  .replace('{chars}', layout.chars)
+                  .replace('{w}', layout.textWidth)
+                  .replace('{h}', layout.viewportHeight)
+                + (layout.lines !== typo.lines || layout.chars !== typo.chars ? ' ' + t('typoLimited') : '')),
+            ),
+            reader.mode !== 'images' && showTypo && h('div', { className: 'books-typo-panel' },
+              h('div', { className: 'books-typo-row' },
+                h('span', { className: 'books-typo-label' }, t('typoPreset')),
+                h('div', { className: 'books-typo-presets' },
+                  [['gov', t('typoGov')], ['comfort', t('typoComfort')], ['compact', t('typoCompact')], ['large', t('typoLarge')], ['auto', t('typoAuto')]]
+                    .map((pair) => h('button', {
+                      key: pair[0],
+                      className: 'books-typo-preset' + (typo.preset === pair[0] ? ' active' : ''),
+                      onClick: () => applyPreset(pair[0]),
+                    }, pair[1])),
+                ),
+              ),
+              h('div', { className: 'books-typo-row' },
+                h('span', { className: 'books-typo-label' }, t('typoLines')),
+                h('input', {
+                  type: 'range', min: 6, max: 40, step: 1, className: 'books-typo-range',
+                  value: layout ? layout.lines : typo.lines,
+                  onChange: (e) => updateTypo({ lines: Number(e.target.value) }),
+                }),
+                h('input', {
+                  type: 'number', min: 6, max: 40, className: 'books-typo-num',
+                  value: layout ? layout.lines : typo.lines,
+                  onChange: (e) => updateTypo({ lines: clampNumber(e.target.value, 6, 40, typo.lines) }),
+                }),
+              ),
+              h('div', { className: 'books-typo-row' },
+                h('span', { className: 'books-typo-label' }, t('typoChars')),
+                h('input', {
+                  type: 'range', min: 16, max: 60, step: 1, className: 'books-typo-range',
+                  value: layout ? layout.chars : typo.chars,
+                  onChange: (e) => updateTypo({ chars: Number(e.target.value) }),
+                }),
+                h('input', {
+                  type: 'number', min: 16, max: 60, className: 'books-typo-num',
+                  value: layout ? layout.chars : typo.chars,
+                  onChange: (e) => updateTypo({ chars: clampNumber(e.target.value, 16, 60, typo.chars) }),
+                }),
+              ),
+              h('div', { className: 'books-typo-row' },
+                h('span', { className: 'books-typo-label' }, t('typoLineHeight')),
+                h('select', {
+                  className: 'books-typo-select',
+                  value: String(typo.lineHeight),
+                  onChange: (e) => updateTypo({ lineHeight: Number(e.target.value) }),
+                }, [1.5, 1.6, 1.75, 1.9, 2.0, 2.2].map((v) => h('option', { key: v, value: String(v) }, v + '×'))),
+                h('span', { className: 'books-typo-label' }, t('typoFont')),
+                h('select', {
+                  className: 'books-typo-select',
+                  value: typo.font,
+                  onChange: (e) => updateTypo({ font: e.target.value }),
+                },
+                  [['fangsong', t('typoFontFangsong')], ['song', t('typoFontSong')], ['hei', t('typoFontHei')], ['kai', t('typoFontKai')], ['system', t('typoFontSystem')]]
+                    .map((pair) => h('option', { key: pair[0], value: pair[0] }, pair[1])),
+                ),
+                h('label', { className: 'books-check' },
+                  h('input', { type: 'checkbox', checked: Boolean(typo.indent), onChange: (e) => updateTypo({ indent: e.target.checked }) }),
+                  t('typoIndent'),
+                ),
+                h('label', { className: 'books-check' },
+                  h('input', { type: 'checkbox', checked: Boolean(typo.justify), onChange: (e) => updateTypo({ justify: e.target.checked }) }),
+                  t('typoJustify'),
+                ),
+              ),
+              h('div', { className: 'books-typo-note' }, t('typoRule')),
+            ),
+            reader.mode !== 'images' && h('div', { className: 'books-text-frame', ref: textFrameRef },
+              h('div', {
+                className: 'books-text-viewport',
+                ref: textViewportRef,
+                style: layout ? { height: layout.viewportHeight + 'px', flex: 'none' } : null,
+                onScroll: (e) => {
+                  const vp = e.currentTarget;
+                  setTextPage(Math.min(textPageCount - 1, Math.round(vp.scrollTop / Math.max(1, vp.clientHeight))));
+                },
               },
-            },
-              h('div', { className: 'books-text' },
-                renderedChapters.length === 0
-                  ? h('div', { className: 'books-warn' }, t('noText'))
-                  : renderedChapters.map((ch, i) => h('div', { key: i },
-                      h('h2', null, ch.heading || t('untitled')),
-                      h('div', null, ch.text),
-                    )),
+                h('div', {
+                  className: 'books-text',
+                  style: layout ? {
+                    width: layout.textWidth + 'px',
+                    fontSize: layout.fontSize + 'px',
+                    lineHeight: String(layout.lineHeight),
+                    fontFamily: TYPO_FONTS[typo.font] || TYPO_FONTS.system,
+                    textAlign: typo.justify ? 'justify' : 'left',
+                  } : null,
+                },
+                  renderedChapters.length === 0
+                    ? h('div', { className: 'books-warn' }, t('noText'))
+                    : renderedChapters.map((ch, i) => h('div', { key: i },
+                        h('h2', null, ch.heading || t('untitled')),
+                        (paragraphic
+                          ? String(ch.text || '').split('\n').filter((p) => p.trim().length > 0)
+                          : [String(ch.text || '')]
+                        ).map((para, j) => h('p', {
+                          key: j,
+                          style: typo.indent && paragraphic ? { textIndent: '2em' } : null,
+                        }, para)),
+                      )),
+                ),
               ),
             ),
             reader.mode !== 'images' && h('div', { className: 'books-pager' },

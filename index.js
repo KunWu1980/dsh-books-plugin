@@ -25,6 +25,44 @@ const SUPPORTED = [".txt", ".epub", ".pdf", ".azw3", ".mobi", ".azw", ".doc", ".
 
 const inject = ["tools"];
 
+// Reading typography. Defaults follow GB/T 9704-2012 (党政机关公文格式):
+// body in 仿宋, 22 lines per page, 28 characters per line, 1.75x line spacing.
+const TYPO_DEFAULTS = {
+	preset: "gov",
+	lines: 22,
+	chars: 28,
+	lineHeight: 1.75,
+	font: "fangsong",
+	indent: true,
+	justify: true,
+};
+const TYPO_PRESETS = ["gov", "comfort", "compact", "large", "auto", "custom"];
+const TYPO_FONTS = ["fangsong", "song", "hei", "kai", "system"];
+
+function clampNumber(value, lo, hi, fallback) {
+	const n = Number(value);
+	if (!Number.isFinite(n)) return fallback;
+	return Math.min(hi, Math.max(lo, n));
+}
+
+function normalizeTypography(input) {
+	const src = typeof input === "object" && input !== null ? input : {};
+	const preset = TYPO_PRESETS.includes(String(src.preset)) ? String(src.preset) : TYPO_DEFAULTS.preset;
+	return {
+		preset,
+		lines: Math.round(clampNumber(src.lines, 6, 40, TYPO_DEFAULTS.lines)),
+		chars: Math.round(clampNumber(src.chars, 16, 60, TYPO_DEFAULTS.chars)),
+		lineHeight: Number(clampNumber(src.lineHeight, 1.2, 2.6, TYPO_DEFAULTS.lineHeight).toFixed(2)),
+		font: TYPO_FONTS.includes(String(src.font)) ? String(src.font) : TYPO_DEFAULTS.font,
+		indent: src.indent === undefined ? TYPO_DEFAULTS.indent : Boolean(src.indent),
+		justify: src.justify === undefined ? TYPO_DEFAULTS.justify : Boolean(src.justify),
+	};
+}
+
+function readTypography(config) {
+	return normalizeTypography(config?.typography);
+}
+
 function readConfig() {
 	try {
 		// Strip a UTF-8 BOM if present: JSON.parse() rejects it, which would
@@ -530,6 +568,7 @@ async function handleApi(request, state) {
 			libraryPath, defaultLibraryPath: DEFAULT_LIB,
 			isCustom: !samePath(libraryPath, DEFAULT_LIB),
 			books: view.books, categories: view.categories,
+			typography: readTypography(config),
 		});
 	}
 	if (p === "/api/books/status" && method === "GET") {
@@ -588,7 +627,11 @@ async function handleApi(request, state) {
 	}
 	if (p === "/api/books/config" && method === "GET") {
 		const libraryPath = libRoot(config);
-		return jsonResponse({ ok: true, libraryPath, defaultLibraryPath: DEFAULT_LIB, isCustom: !samePath(libraryPath, DEFAULT_LIB) });
+		return jsonResponse({
+			ok: true, libraryPath, defaultLibraryPath: DEFAULT_LIB,
+			isCustom: !samePath(libraryPath, DEFAULT_LIB),
+			typography: readTypography(config),
+		});
 	}
 	if (p === "/api/books/config" && method === "POST") {
 		let body;
@@ -597,14 +640,25 @@ async function handleApi(request, state) {
 		} catch {
 			return jsonResponse({ ok: false, error: "Invalid JSON" }, 400);
 		}
-		const target = body?.reset ? DEFAULT_LIB : normalizeLibPath(body?.libraryPath);
-		const move = body?.move !== false;
-		const moveResult = state.applyConfig({ libraryPath: target }, move);
+		// Typography and library location are saved independently: the panel
+		// posts {typography} while changing layout, and {libraryPath} or
+		// {reset} while changing where books live.
+		if (body?.typography) {
+			state.applyConfig({ typography: normalizeTypography(body.typography) }, false);
+		}
+		let moveResult = null;
+		if (body?.reset || body?.libraryPath) {
+			const target = body?.reset ? DEFAULT_LIB : normalizeLibPath(body?.libraryPath);
+			const move = body?.move !== false;
+			moveResult = state.applyConfig({ libraryPath: target }, move);
+		}
 		const updated = state.getConfig();
 		return jsonResponse({
 			ok: true, libraryPath: libRoot(updated), defaultLibraryPath: DEFAULT_LIB,
 			isCustom: !samePath(libRoot(updated), DEFAULT_LIB),
-			books: scanLibrary(updated), move: moveResult,
+			books: moveResult ? scanLibrary(updated) : undefined,
+			move: moveResult,
+			typography: readTypography(updated),
 		});
 	}
 	if (p === "/api/books/import" && method === "POST") {
