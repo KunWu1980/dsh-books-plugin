@@ -2,8 +2,8 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T20:41:33.100Z",
-  "fetchedAt": "2026-11-27T20:40:04.866Z",
+  "updatedAt": "2026-11-27T21:02:45.558Z",
+  "fetchedAt": "2026-11-27T21:02:25.943Z",
   "count": 30,
   "activeCount": 7,
   "sources": [
@@ -31,8 +31,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 279,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 257,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -59,8 +59,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 2342,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 2388,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -87,8 +87,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 437,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 281,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -115,8 +115,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 88,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 287,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -144,7 +144,7 @@
         "ok": true,
         "httpStatus": 200,
         "latencyMs": 85,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -172,9 +172,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 11055,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "note": "via curl fallback"
+        "latencyMs": 463,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -202,8 +201,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 157,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 194,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -231,8 +230,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 175,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 164,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -257,8 +256,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 182,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 201,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -287,8 +286,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 82,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 125,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -313,8 +312,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 219,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 166,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -340,8 +339,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 279,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
+        "latencyMs": 349,
+        "checkedAt": "2026-11-27T21:02:25.943Z",
         "note": "via curl fallback"
       }
     },
@@ -353,23 +352,22 @@
       "category": "门户/综合",
       "priority": 3,
       "status": "candidate",
-      "access": "unknown",
-      "homepage": "https://www.ahlib.com/",
+      "access": "registration",
+      "homepage": "https://www.ycfw.ahlib.com/",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP fetch failed）。门户不可达（https 与 http 均 fetch 失败）。",
+      "adapterNote": "2026-11-28 复测：主站不可达，远程服务平台 https://www.ycfw.ahlib.com/ HTTP 200（鉴权代理）。全文资源需读者账号。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
       "addedAt": "2026-11-28",
       "health": {
-        "ok": false,
-        "httpStatus": null,
-        "latencyMs": 30791,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "error": "curl: spawnSync curl ETIMEDOUT"
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 289,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -394,8 +392,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 179,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 193,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -406,13 +404,13 @@
       "category": "门户/综合",
       "priority": 3,
       "status": "candidate",
-      "access": "unknown",
-      "homepage": "https://www.gxlib.org.cn/",
+      "access": "registration",
+      "homepage": "http://www.gxlib.org/",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP fetch failed）。门户不可达（http/https 均失败）。核心资源走 SSO/读者证。",
+      "adapterNote": "2026-11-28 复测：原域名不可达，备用官方入口 http://www.gxlib.org/ 可达（HTTP 200）。全文资源需读者账号。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
@@ -420,9 +418,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 749,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "note": "via curl fallback"
+        "latencyMs": 549,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -447,8 +444,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 586,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 634,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -473,8 +470,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 186,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 189,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -499,8 +496,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 456,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 583,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -525,8 +522,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 227,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 226,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -551,8 +548,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 345,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 369,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -577,35 +574,34 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 130,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 207,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
       "id": "jiangxi",
-      "name": "江西省图书馆",
+      "name": "江西省图书馆·远程服务",
       "nameEn": "Jiangxi Provincial Library",
       "region": "江西",
       "category": "门户/综合",
       "priority": 3,
       "status": "candidate",
-      "access": "unknown",
-      "homepage": "http://www.jxlib.gov.cn/",
+      "access": "registration",
+      "homepage": "https://cs.jxlibrary.net/",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP fetch failed）。门户不可达（本机 fetch 失败）。自建\"江右文库\"资源需登录。",
+      "adapterNote": "2026-11-28 复测：原域名不可达，备用官方入口 https://cs.jxlibrary.net/ 可达（HTTP 200）。全文资源需读者账号。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
       "addedAt": "2026-11-28",
       "health": {
-        "ok": false,
-        "httpStatus": null,
-        "latencyMs": 96,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "error": "curl: Command failed: curl -k -sS -o NUL -w %{http_code} --max-time 20 http://www.jxlib.gov.cn/\ncurl: (6) Could not resolve host: www.jxlib.gov.cn\r\n"
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 148,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -617,22 +613,22 @@
       "priority": 3,
       "status": "candidate",
       "access": "unknown",
-      "homepage": "http://www.jllib.cn/",
+      "homepage": "https://www.jllib.com/",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP fetch failed）。门户不可达（本机 fetch 失败）。",
+      "adapterNote": "2026-11-28 复测：jllib.cn 超时、jllib.com returns 400/SSL 握手失败，两条域名均无法稳定访问，待后续复测。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
       "addedAt": "2026-11-28",
       "health": {
         "ok": false,
-        "httpStatus": null,
-        "latencyMs": 30306,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "error": "curl: spawnSync curl ETIMEDOUT"
+        "httpStatus": 400,
+        "latencyMs": 58,
+        "checkedAt": "2026-11-27T21:02:25.943Z",
+        "error": "unexpected status 400 (expected 200)"
       }
     },
     {
@@ -657,8 +653,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 373,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 490,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -683,8 +679,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 217,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 242,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -709,8 +705,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 133,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 158,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -721,23 +717,22 @@
       "category": "门户/综合",
       "priority": 3,
       "status": "candidate",
-      "access": "unknown",
-      "homepage": "http://www.sdlib.com/",
+      "access": "registration",
+      "homepage": "http://www.sdlib.org.cn/",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP fetch failed）。门户不可达（http/https 均失败）。数字资源需读者证。",
+      "adapterNote": "2026-11-28 复测：原域名不可达，备用官方入口 http://www.sdlib.org.cn/ 可达（HTTP 200）。全文资源需读者账号。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
       "addedAt": "2026-11-28",
       "health": {
-        "ok": false,
-        "httpStatus": null,
-        "latencyMs": 165,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "error": "curl: Command failed: curl -k -sS -o NUL -w %{http_code} --max-time 20 http://www.sdlib.com/\ncurl: (6) Could not resolve host: www.sdlib.com\r\n"
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 177,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -754,7 +749,7 @@
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP 502）。门户 502 Bad Gateway（本机 2026-11-28 实测）。",
+      "adapterNote": "2026-11-28 复测：lib.sx.cn http/https 均 502，www.sxlib.com.cn EAI_AGAIN。服务不可用，待后续复测。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
@@ -762,8 +757,8 @@
       "health": {
         "ok": false,
         "httpStatus": 502,
-        "latencyMs": 6140,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
+        "latencyMs": 6088,
+        "checkedAt": "2026-11-27T21:02:25.943Z",
         "error": "unexpected status 502 (expected 200)"
       }
     },
@@ -775,23 +770,22 @@
       "category": "门户/综合",
       "priority": 3,
       "status": "candidate",
-      "access": "unknown",
-      "homepage": "http://www.tblib.org.cn/",
+      "access": "registration",
+      "homepage": "http://www.xzlib.org.cn/",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "2026-11-28 省级门户普查：门户本机探测不可达（HTTP fetch failed）。门户不可达（本机 fetch 失败）。",
+      "adapterNote": "2026-11-28 复测：原域名不可达，备用官方入口 http://www.xzlib.org.cn/ 可达（HTTP 200）。全文资源需读者账号。",
       "license": "视具体资源而定",
       "rightsNote": "全文资源通常需读者证/实名注册或馆内访问。",
       "effort": "0.5-1 人日（视资源形态）",
       "addedAt": "2026-11-28",
       "health": {
-        "ok": false,
-        "httpStatus": null,
-        "latencyMs": 100,
-        "checkedAt": "2026-11-27T20:40:04.866Z",
-        "error": "curl: Command failed: curl -k -sS -o NUL -w %{http_code} --max-time 20 http://www.tblib.org.cn/\ncurl: (6) Could not resolve host: www.tblib.org.cn\r\n"
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 2236,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     },
     {
@@ -816,8 +810,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 1517,
-        "checkedAt": "2026-11-27T20:40:04.866Z"
+        "latencyMs": 1627,
+        "checkedAt": "2026-11-27T21:02:25.943Z"
       }
     }
   ]
