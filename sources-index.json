@@ -2,7 +2,7 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T19:08:05.791Z",
+  "updatedAt": "2026-11-27T19:21:58.697Z",
   "fetchedAt": "2026-11-27T18:14:46.291Z",
   "count": 13,
   "activeCount": 5,
@@ -157,7 +157,7 @@
       "category": "古籍",
       "priority": 2,
       "status": "candidate",
-      "access": "anonymous",
+      "access": "account",
       "homepage": "https://www.cqlib.cn/",
       "capabilities": [
         "search",
@@ -166,10 +166,10 @@
         "ocr-text"
       ],
       "adapter": "none",
-      "adapterNote": "试用平台，端点待逆向。",
+      "adapterNote": "2026-11-28 复查：平台需登录北碚图书馆官网读者账号后方能阅览（重庆图书馆官方文章『读者可登录图书馆官网免费阅览全部古籍』）；公开搜索引擎（Bing）检索不到平台独立 URL（beilib.com/bbtsg.cn/bblib.cn 等候选域名均连不通）。无匿名入口，暂不适合插件直连；保持 candidate 并标记 access=account。",
       "license": "公版古籍",
-      "rightsNote": "免费试用开放。",
-      "effort": "1-2 人日",
+      "rightsNote": "免费试用开放，但需读者账号登录。",
+      "effort": "不适用（无匿名入口）",
       "addedAt": "2026-11-28",
       "health": {
         "ok": true,
