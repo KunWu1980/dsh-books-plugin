@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as nlc from "./nlc.js";
 import * as gd from "./guangdong.js";
+import * as sx from "./shaanxi.js";
 import * as sources from "./sources.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -909,6 +910,42 @@ async function handleApi(request, state) {
 			));
 		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
 	}
+	if (p === "/api/books/sx/catalog" && method === "GET") {
+		try {
+			return jsonResponse(await sx.sxCatalog(url.searchParams.get("page") || 1, url.searchParams.get("rows") || 100));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/sx/search" && method === "GET") {
+		try {
+			return jsonResponse(await sx.sxSearch(url.searchParams.get("q") || "", url.searchParams.get("page") || 1, url.searchParams.get("rows") || 100));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/sx/meta" && method === "GET") {
+		try {
+			return jsonResponse(await sx.sxBookMeta(url.searchParams.get("wholeId") || ""));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/sx/page" && method === "GET") {
+		try {
+			return jsonResponse(await sx.sxPage(
+				url.searchParams.get("wholeId") || "", url.searchParams.get("volumeId") || "",
+				url.searchParams.get("page") || 1,
+			));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/sx/image" && method === "GET") {
+		try {
+			const bytes = await sx.sxImage(url.searchParams.get("file") || "");
+			return new Response(bytes, {
+				status: 200,
+				headers: {
+					"content-type": "image/jpeg",
+					"cache-control": "public, max-age=86400",
+					"content-length": String(bytes.length),
+				},
+			});
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
 	return jsonResponse({ ok: false, error: "Unknown route" }, 404);
 }
 
@@ -969,7 +1006,7 @@ export function apply(ctx) {
 			if (registered || stopped) return true;
 			const connection = ctx.get("connection");
 			if (!connection?.fetch?.register) return false;
-			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "sources", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image", "gd/catalog", "gd/search", "gd/meta", "gd/page"].map((name) =>
+			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "sources", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image", "gd/catalog", "gd/search", "gd/meta", "gd/page", "sx/catalog", "sx/search", "sx/meta", "sx/page", "sx/image"].map((name) =>
 				connection.fetch.register({
 					path: "/api/books/" + name,
 					methods: ["GET", "POST"],

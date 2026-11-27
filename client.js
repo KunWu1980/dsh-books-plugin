@@ -77,6 +77,9 @@ window.__ModuleLoader__.load({
       onlineHintMap: '当前：{n} · 在线逐页浏览，不下载到本地',
       gdHint: '广东省立中山图书馆 · 《广东通志》开放 OCR 全文（繁简对照，在线阅读）',
       gdDisclaimer: '资源来自广东省立中山图书馆公开数字资源，OCR 文字供在线阅读，版权归原权利方所有。',
+      sxHint: '陕西省图书馆 · 历史文献数据库（珍贵古籍/陕西方志/民国报刊，在线逐页看图）',
+      sxDisclaimer: '资源来自陕西省图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。',
+      sxNoVolume: '该书暂无适配的卷册可浏览。',
       // Multi-library source switcher (from dsh-library-sources weekly index)
       libSources: '图书馆源', libSourcesHint: '来源：各馆公开数字资源索引 · {d} 更新',
       libSourceActive: '可阅读', libSourceCandidate: '待接入', libSourceSoon: '该馆正在接入中：{n}',
@@ -153,6 +156,9 @@ window.__ModuleLoader__.load({
       onlineHintMap: 'Source: {n} · browse page by page, never downloaded locally',
       gdHint: 'Sun Yat-sen Library of Guangdong · open OCR full text of 广东通志 (traditional/simplified, online reading)',
       gdDisclaimer: 'Resources come from the Sun Yat-sen Library of Guangdong public digital collections; OCR text is for online reading only; copyright remains with the respective rights holders.',
+      sxHint: 'Shaanxi Provincial Library · historical documents database (rare books / gazetteers / Republican press, online page-by-page image reading)',
+      sxDisclaimer: 'Resources come from the Shaanxi Provincial Library public digital collections, for online reading only; copyright remains with the respective rights holders.',
+      sxNoVolume: 'No readable volume available for this title yet.',
       // Multi-library source switcher (from dsh-library-sources weekly index)
       libSources: 'Library sources', libSourcesHint: 'From the public-library index · updated {d}',
       libSourceActive: 'Readable', libSourceCandidate: 'Coming soon', libSourceSoon: 'This library is being connected: {n}',
@@ -536,16 +542,19 @@ window.__ModuleLoader__.load({
 
       React.useEffect(() => { void loadSources(false); }, [loadSources]);
 
-      // ---- Online reading functions (source-aware: nlc = images, gd = text) ----
+      // ---- Online reading functions (source-aware: nlc = images, gd = text, sx = images) ----
       const isGd = () => libSourceId === 'guangdong' || String(libSourceId).startsWith('gd');
+      const isSx = () => libSourceId === 'shaanxi' || String(libSourceId).startsWith('sx');
 
       const nlcCatalog = React.useCallback(async (sourceOverride) => {
         setNlcLoading(true); setNlcStatus('loading'); setNlcBook(null);
         try {
           const sid = sourceOverride || libSourceId;
-          const data = (sid === 'guangdong' || String(sid).startsWith('gd'))
+          const data = isGd()
             ? await api('gd/catalog?page=1&rows=100')
-            : await api('nlc/catalog?page=1&rows=30');
+            : isSx()
+              ? await api('sx/catalog?page=1&rows=100')
+              : await api('nlc/catalog?page=1&rows=30');
           setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
@@ -558,7 +567,9 @@ window.__ModuleLoader__.load({
         try {
           const data = isGd()
             ? await api('gd/search?q=' + encodeURIComponent(q) + '&page=1&rows=100')
-            : await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
+            : isSx()
+              ? await api('sx/search?q=' + encodeURIComponent(q) + '&page=1&rows=100')
+              : await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
           setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
         } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
         finally { setNlcLoading(false); }
@@ -569,9 +580,12 @@ window.__ModuleLoader__.load({
         try {
           const data = isGd()
             ? await api('gd/meta?treeId=' + encodeURIComponent(book.treeId || ''))
-            : await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
+            : isSx()
+              ? await api('sx/meta?wholeId=' + encodeURIComponent(book.wholeId || ''))
+              : await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
           setNlcBook({
             sourceId: book.sourceId, treeId: book.treeId || '',
+            wholeId: book.wholeId || '',
             volume: book.volume || '001',
             title: data.title || book.title || book.section || '',
             author: data.author || '',
@@ -591,8 +605,10 @@ window.__ModuleLoader__.load({
         try {
           const data = isGd()
             ? await api('gd/page?treeId=' + encodeURIComponent(nlcBook.treeId) + '&page=' + target)
-            : await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
-              + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
+            : isSx()
+              ? await api('sx/page?wholeId=' + encodeURIComponent(nlcBook.wholeId) + '&page=' + target)
+              : await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
+                + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
           setNlcPageData({ filePath: data.filePath || '', text: data.text || '' });
         } catch (e) { setErrorText(String(e && e.message || e)); }
         finally { setNlcPageLoading(false); }
@@ -1014,7 +1030,7 @@ window.__ModuleLoader__.load({
               h('span', { style: { fontSize: 12, color: C.muted, marginRight: 4 } }, t('libSources') + ':'),
               libSources.map((s) => {
                 // Locally installed adapters can make a stale index entry readable.
-                const localAdapters = { nlc: true, guangdong: true };
+                const localAdapters = { nlc: true, guangdong: true, shaanxi: true };
                 const ready = (s.adapter && s.adapter !== 'none') || Boolean(localAdapters[s.id]);
                 const health = s.health && typeof s.health.ok === 'boolean' ? s.health.ok : null;
                 const active = libSourceId === s.id;
@@ -1043,9 +1059,13 @@ window.__ModuleLoader__.load({
               + (libSourceMeta.origin ? ' · ' + t('libSourceOrigin').replace('{n}', libSourceMeta.origin) : ''),
             ),
             h('div', { className: 'books-hint' },
-              (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdHint') : t('nlcHint')),
+              (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdHint')
+                : (libSourceId === 'shaanxi' || String(libSourceId).startsWith('sx')) ? t('sxHint')
+                  : t('nlcHint')),
             h('div', { className: 'books-nlc-disclaimer' },
-              (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdDisclaimer') : t('nlcDisclaimer')),
+              (libSourceId === 'guangdong' || String(libSourceId).startsWith('gd')) ? t('gdDisclaimer')
+                : (libSourceId === 'shaanxi' || String(libSourceId).startsWith('sx')) ? t('sxDisclaimer')
+                  : t('nlcDisclaimer')),
             nlcBook
               ? h('div', { className: 'books-nlc-page-wrap' },
                   h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', margin: '6px 0' } },
@@ -1060,7 +1080,7 @@ window.__ModuleLoader__.load({
                   nlcPageLoading && h('div', { className: 'books-loading' }, t('nlcLoading')),
                   nlcPageData && nlcPageData.filePath && h('img', {
                     className: 'books-nlc-page-img',
-                    src: '/api/books/nlc/image?file=' + encodeURIComponent(nlcPageData.filePath),
+                    src: (isSx() ? '/api/books/sx/image?file=' : '/api/books/nlc/image?file=') + encodeURIComponent(nlcPageData.filePath),
                     alt: t('nlcPageOf').replace('{n}', nlcPageNo).replace('{total}', nlcBook.pageCount),
                   }),
                   nlcPageData && h('div', null,
