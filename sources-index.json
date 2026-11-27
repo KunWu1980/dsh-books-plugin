@@ -2,10 +2,10 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T18:15:00.095Z",
+  "updatedAt": "2026-11-27T18:45:20.537Z",
   "fetchedAt": "2026-11-27T18:14:46.291Z",
   "count": 13,
-  "activeCount": 3,
+  "activeCount": 4,
   "sources": [
     {
       "id": "nlc",
@@ -70,20 +70,19 @@
       "region": "江苏",
       "category": "古籍",
       "priority": 1,
-      "status": "candidate",
+      "status": "active",
       "access": "anonymous",
       "homepage": "http://zggj.jslib.org.cn/#/home",
       "capabilities": [
         "search",
         "browse",
-        "page-image",
-        "ocr-text"
+        "page-image"
       ],
-      "adapter": "none",
-      "adapterNote": "Vue SPA，API 在 /portal/book/*；参数经 CryptoJS 编码/签名，getBookById 需先解码。JS bundle 提取到参数表：getTxtByPage(recordId,volumeName,pageName)、getBookById(bookId)、imgInfo(bookId)、pageSearch(bookId)。需在项目中实现签名适配器。",
+      "adapter": "builtin:js",
+      "adapterNote": "已接入（图片适配器）：AES-128-CBC 参数加密已破解（key/iv 自前端 bundle，ZeroPadding），getBookById/getMasterSlaveCatalogue 加密参数可调；mainSearch 全库目录（typeId=80, esParams=[]）与标题检索（esParams title englishName）；卷册页数二分探测；图片直链 /medias/<册id>/thumbnails/NNNN/large.jpg 匿名可读。纯图片阅读（平台未开 OCR 文本）。",
       "license": "公版古籍",
       "rightsNote": "平台声明免费、开放、全网发布；以游客方式登录即可浏览全文。",
-      "effort": "2-3 人日（含签名逆向）",
+      "effort": "已接入（图片适配器）",
       "addedAt": "2026-11-27",
       "health": {
         "ok": true,
