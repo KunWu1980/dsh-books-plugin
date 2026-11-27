@@ -141,5 +141,15 @@
   "nlcNoOcr": "No recognizable text on this page",
   "nlcLoadMore": "Load more",
   "nlcDisclaimer": "Resources come from the National Library of China public digital collections, for online reading only; copyright remains with the respective rights holders.",
-  "nlcPublish": "{n} · {p}"
+  "nlcPublish": "{n} · {p}",
+  "libSources": "Library sources",
+  "libSourcesHint": "From the public-library index · updated {d}",
+  "libSourceActive": "Readable",
+  "libSourceCandidate": "Coming soon",
+  "libSourceSoon": "This library is being connected: {n}",
+  "libSourceHealthy": "Online",
+  "libSourceDown": "Unavailable",
+  "libSourceOrigin": "Index source: {n}",
+  "libSourceRefresh": "Refresh sources",
+  "libSourceNoAdapter": "No reading adapter for this library yet. Stay tuned."
 }

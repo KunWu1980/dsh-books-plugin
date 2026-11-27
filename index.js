@@ -12,6 +12,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as nlc from "./nlc.js";
+import * as sources from "./sources.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const EXTRACTOR = path.join(here, "extractor.py");
@@ -836,6 +837,15 @@ async function handleApi(request, state) {
 			return jsonResponse({ ok: false, error: String(e?.message || e) }, 400);
 		}
 	}
+	// ---- Library source index (public libraries open/public-domain collections) ----
+	// Read-only: lists sources from the dsh-library-sources weekly index. The UI
+	// uses this to offer a multi-library switcher; adapters are added over time.
+	if (p === "/api/books/sources" && method === "GET") {
+		try {
+			const force = url.searchParams.get("force") === "1";
+			return jsonResponse(await sources.librarySources(force));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
 	// ---- National Library of China (public-domain Republican gazetteers) ----
 	// These are read-only browsing proxies. Nothing is written to the local shelf.
 	if (p === "/api/books/nlc/catalog" && method === "GET") {
@@ -934,7 +944,7 @@ export function apply(ctx) {
 			if (registered || stopped) return true;
 			const connection = ctx.get("connection");
 			if (!connection?.fetch?.register) return false;
-			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image"].map((name) =>
+			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "sources", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image"].map((name) =>
 				connection.fetch.register({
 					path: "/api/books/" + name,
 					methods: ["GET", "POST"],

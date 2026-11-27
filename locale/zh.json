@@ -141,5 +141,15 @@
   "nlcNoOcr": "本页没有可识别的文字",
   "nlcLoadMore": "加载更多",
   "nlcDisclaimer": "资源来自国家图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。",
-  "nlcPublish": "{n} · {p}"
+  "nlcPublish": "{n} · {p}",
+  "libSources": "图书馆源",
+  "libSourcesHint": "来源：各馆公开数字资源索引 · {d} 更新",
+  "libSourceActive": "可阅读",
+  "libSourceCandidate": "待接入",
+  "libSourceSoon": "该馆正在接入中：{n}",
+  "libSourceHealthy": "可访问",
+  "libSourceDown": "暂不可访问",
+  "libSourceOrigin": "索引来源：{n}",
+  "libSourceRefresh": "刷新源",
+  "libSourceNoAdapter": "此馆尚未配置阅读适配器，敬请期待。"
 }

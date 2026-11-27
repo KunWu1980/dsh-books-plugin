@@ -73,6 +73,11 @@ window.__ModuleLoader__.load({
       nlcNoOcr: '本页没有可识别的文字', nlcLoadMore: '加载更多',
       nlcDisclaimer: '资源来自国家图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。',
       nlcPublish: '{n} · {p}',
+      // Multi-library source switcher (from dsh-library-sources weekly index)
+      libSources: '图书馆源', libSourcesHint: '来源：各馆公开数字资源索引 · {d} 更新',
+      libSourceActive: '可阅读', libSourceCandidate: '待接入', libSourceSoon: '该馆正在接入中：{n}',
+      libSourceHealthy: '可访问', libSourceDown: '暂不可访问', libSourceOrigin: '索引来源：{n}',
+      libSourceRefresh: '刷新源', libSourceNoAdapter: '此馆尚未配置阅读适配器，敬请期待。',
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
@@ -140,6 +145,11 @@ window.__ModuleLoader__.load({
       nlcNoOcr: 'No recognizable text on this page', nlcLoadMore: 'Load more',
       nlcDisclaimer: 'Resources come from the National Library of China public digital collections, for online reading only; copyright remains with the respective rights holders.',
       nlcPublish: '{n} · {p}',
+      // Multi-library source switcher (from dsh-library-sources weekly index)
+      libSources: 'Library sources', libSourcesHint: 'From the public-library index · updated {d}',
+      libSourceActive: 'Readable', libSourceCandidate: 'Coming soon', libSourceSoon: 'This library is being connected: {n}',
+      libSourceHealthy: 'Online', libSourceDown: 'Unavailable', libSourceOrigin: 'Index source: {n}',
+      libSourceRefresh: 'Refresh sources', libSourceNoAdapter: 'No reading adapter for this library yet. Stay tuned.',
     };
 
     const C = {
@@ -159,6 +169,17 @@ window.__ModuleLoader__.load({
       .books-mode-tabs{display:flex;gap:2px;padding:2px;background:${C.layer1};border-radius:8px;}
       .books-mode-tab{padding:5px 12px;border:none;border-radius:6px;background:transparent;color:${C.muted};font-size:13px;cursor:pointer;white-space:nowrap;}
       .books-mode-tab.active{background:${C.brand};color:#fff;font-weight:600;}
+      .books-src-strip{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:8px 0 4px;}
+      .books-src-chip{display:flex;flex-direction:column;gap:2px;padding:6px 10px;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};cursor:pointer;min-width:96px;}
+      .books-src-chip:hover{border-color:${C.brand};}
+      .books-src-chip.active{border-color:${C.brand};background:${C.layer2};}
+      .books-src-chip.disabled{opacity:.55;cursor:not-allowed;}
+      .books-src-name{font-size:13px;font-weight:600;}
+      .books-src-badge{font-size:10px;color:${C.muted};display:flex;align-items:center;gap:4px;}
+      .books-src-badge.ready{color:${C.brand};}
+      .books-src-dot{width:6px;height:6px;border-radius:50%;background:${C.muted};}
+      .books-src-dot.ok{background:#2e9b5b;}
+      .books-src-dot.bad{background:${C.error};}
       .books-nlc-search{display:flex;gap:8px;margin-bottom:10px;}
       .books-nlc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
       .books-nlc-card{padding:12px;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};cursor:pointer;}
@@ -467,6 +488,10 @@ window.__ModuleLoader__.load({
       const [nlcPageNo, setNlcPageNo] = React.useState(1);  // 1-based
       const [nlcPageData, setNlcPageData] = React.useState(null); // {filePath,text}
       const [nlcPageLoading, setNlcPageLoading] = React.useState(false);
+      // Multi-library source switcher (weekly index from dsh-library-sources)
+      const [libSources, setLibSources] = React.useState([]);
+      const [libSourceId, setLibSourceId] = React.useState('nlc');
+      const [libSourceMeta, setLibSourceMeta] = React.useState({ updatedAt: null, origin: null });
 
       const loadList = React.useCallback(async () => {
         setStatus('loading');
@@ -488,6 +513,20 @@ window.__ModuleLoader__.load({
       }, []);
 
       React.useEffect(() => { void loadList(); }, [loadList]);
+
+      // ---- Library source index (multi-library switcher) ----
+      const loadSources = React.useCallback(async (force) => {
+        try {
+          const data = await api('sources' + (force ? '?force=1' : ''));
+          const list = (data.sources || []).slice().sort((a, b) => (a.priority ?? 9) - (b.priority ?? 9));
+          setLibSources(list);
+          setLibSourceMeta({ updatedAt: data.updatedAt || null, origin: data.origin || null });
+        } catch {
+          /* keep whatever list we already have; the active source still works */
+        }
+      }, []);
+
+      React.useEffect(() => { void loadSources(false); }, [loadSources]);
 
       // ---- National Library online reading functions ----
       const nlcCatalog = React.useCallback(async () => {
@@ -938,7 +977,7 @@ window.__ModuleLoader__.load({
                   }, '\uD83D\uDCDA ' + t('localLibrary')),
                   h('button', {
                     className: 'books-mode-tab' + (mode === 'online' ? ' active' : ''),
-                    onClick: () => { setMode('online'); if (nlcList.length === 0 && !nlcBook) void nlcCatalog(); },
+                    onClick: () => { setMode('online'); void loadSources(false); if (nlcList.length === 0 && !nlcBook) void nlcCatalog(); },
                   }, '\uD83C\uDFDB\uFE0F ' + t('onlineLibrary')),
                 ),
                 mode === 'local' && h('button', { className: 'books-btn', onClick: () => setShowImport((v) => !v) }, t('import')),
@@ -949,6 +988,37 @@ window.__ModuleLoader__.load({
         h('div', { className: 'books-body' },
           // ---- Online library (National Library of China) ----
           mode === 'online' && h('div', { className: 'books-nlc' , style: { padding: 16, overflow: 'auto', flex: 1 } },
+            // Library source switcher — every source from the weekly index.
+            h('div', { className: 'books-src-strip' },
+              h('span', { style: { fontSize: 12, color: C.muted, marginRight: 4 } }, t('libSources') + ':'),
+              libSources.map((s) => {
+                const ready = s.adapter && s.adapter !== 'none';
+                const health = s.health && typeof s.health.ok === 'boolean' ? s.health.ok : null;
+                const active = libSourceId === s.id;
+                return h('div', {
+                  key: s.id,
+                  className: 'books-src-chip' + (active ? ' active' : '') + (ready ? '' : ' disabled'),
+                  title: ready ? (s.name + (s.adapterNote ? '\n' + s.adapterNote : '')) : t('libSourceNoAdapter'),
+                  onClick: () => {
+                    if (!ready) return;
+                    setLibSourceId(s.id);
+                    setNlcBook(null); setNlcPageData(null);
+                    void nlcCatalog();
+                  },
+                },
+                  h('span', { className: 'books-src-name' }, s.name || s.id),
+                  h('span', { className: 'books-src-badge' + (ready ? ' ready' : '') },
+                    h('i', { className: 'books-src-dot' + (health === true ? ' ok' : health === false ? ' bad' : '') }),
+                    ready ? t('libSourceActive') : t('libSourceCandidate'),
+                  ),
+                );
+              }),
+              h('button', { className: 'books-btn', style: { marginLeft: 4 }, onClick: () => void loadSources(true) }, t('libSourceRefresh')),
+            ),
+            libSourceMeta.updatedAt && h('div', { className: 'books-nlc-disclaimer' },
+              t('libSourcesHint').replace('{d}', String(libSourceMeta.updatedAt).slice(0, 10))
+              + (libSourceMeta.origin ? ' · ' + t('libSourceOrigin').replace('{n}', libSourceMeta.origin) : ''),
+            ),
             h('div', { className: 'books-hint' }, t('nlcHint')),
             h('div', { className: 'books-nlc-disclaimer' }, t('nlcDisclaimer')),
             nlcBook

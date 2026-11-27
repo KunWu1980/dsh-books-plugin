@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "name": "dsh-library-sources",
+  "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
+  "updatedAt": "2026-11-27T15:54:25.264Z",
+  "fetchedAt": "2026-11-27T15:54:23.311Z",
+  "count": 6,
+  "activeCount": 1,
+  "sources": [
+    {
+      "id": "nlc",
+      "name": "国家图书馆·民国地方文献",
+      "nameEn": "National Library of China - Republican Local Documents",
+      "region": "全国",
+      "category": "民国文献",
+      "priority": 0,
+      "status": "active",
+      "access": "anonymous",
+      "homepage": "https://read.nlc.cn",
+      "capabilities": [
+        "search",
+        "browse",
+        "page-image",
+        "ocr-text"
+      ],
+      "adapter": "builtin:nlc",
+      "adapterNote": "已内置于 dsh-books-plugin 的 nlc.js，apiBase=https://mg.nlc.cn/api/，fileServer=https://mg.nlc.cn/guotu/",
+      "license": "公版民国文献（依中国著作权法，发表超过50年）",
+      "rightsNote": "仅在线浏览，不下载、不落盘、不批量抓取；当代阅文合作电子书为版权书，不在收录范围。",
+      "addedAt": "2026-11-27",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 290,
+        "checkedAt": "2026-11-27T15:54:23.311Z"
+      }
+    },
+    {
+      "id": "guangdong",
+      "name": "广东省立中山图书馆·开放资源",
+      "nameEn": "Sun Yat-sen Library of Guangdong Province - Open Resources",
+      "region": "广东",
+      "category": "古籍/地方文献/华侨报刊",
+      "priority": 1,
+      "status": "candidate",
+      "access": "anonymous",
+      "homepage": "https://www.zslib.com.cn/",
+      "capabilities": [
+        "browse",
+        "metadata",
+        "link"
+      ],
+      "adapter": "none",
+      "adapterNote": "公开 API：POST https://www.zslib.com.cn/Api/GetRlmsList，body {\"cate\":\"gj\",\"page\":1,\"pageSize\":20}（cate=gj/dfwx/tszy/wwzy/ysp/sw），返回 list[].libs[0].{onlyid,needLogin,url}；needLogin=N 即匿名可读；跳转 /jump?onlyid=...&appid=...。逐页图片接口需抓包。",
+      "license": "公版古籍/民国报刊",
+      "rightsNote": "仅收录 API 标记 needLogin=N 的公开资源",
+      "effort": "0.5-1 人日（元数据层易，逐页需抓包）",
+      "addedAt": "2026-11-27",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 703,
+        "checkedAt": "2026-11-27T15:54:23.311Z"
+      }
+    },
+    {
+      "id": "jiangsu",
+      "name": "江苏省古籍数字资源集成平台",
+      "nameEn": "Jiangsu Ancient Books Digital Resource Platform",
+      "region": "江苏",
+      "category": "古籍",
+      "priority": 1,
+      "status": "candidate",
+      "access": "anonymous",
+      "homepage": "http://zggj.jslib.org.cn/#/home",
+      "capabilities": [
+        "search",
+        "browse",
+        "page-image",
+        "ocr-text"
+      ],
+      "adapter": "none",
+      "adapterNote": "Vue SPA，API 在 /portal/book/*；参数经 CryptoJS 编码/签名，getBookById 需先解码。JS bundle 提取到参数表：getTxtByPage(recordId,volumeName,pageName)、getBookById(bookId)、imgInfo(bookId)、pageSearch(bookId)。需在项目中实现签名适配器。",
+      "license": "公版古籍",
+      "rightsNote": "平台声明免费、开放、全网发布；以游客方式登录即可浏览全文。",
+      "effort": "2-3 人日（含签名逆向）",
+      "addedAt": "2026-11-27",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 89,
+        "checkedAt": "2026-11-27T15:54:23.311Z"
+      }
+    },
+    {
+      "id": "shaanxi",
+      "name": "陕西省图书馆·陕西省历史文献数据库",
+      "nameEn": "Shaanxi Provincial Library - Historical Documents Database",
+      "region": "陕西",
+      "category": "古籍/方志/民国报纸",
+      "priority": 1,
+      "status": "candidate",
+      "access": "anonymous",
+      "homepage": "https://lswxsjk.sxlib.org.cn/home",
+      "capabilities": [
+        "search",
+        "browse",
+        "page-image",
+        "ocr-text"
+      ],
+      "adapter": "none",
+      "adapterNote": "Vue SPA，HTML 含 /css/chunk-*.css 与 /js/chunk-*.js + /js/app.js；逐页 endpoint 待逆向。",
+      "license": "公版古籍/民国文献",
+      "rightsNote": "面向社会公众开放服务，匿名浏览。",
+      "effort": "2-3 人日",
+      "addedAt": "2026-11-27",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 395,
+        "checkedAt": "2026-11-27T15:54:23.311Z"
+      }
+    },
+    {
+      "id": "sichuan",
+      "name": "四川省图书馆·珍贵古籍数据库",
+      "nameEn": "Sichuan Provincial Library - Precious Ancient Books",
+      "region": "四川",
+      "category": "古籍",
+      "priority": 1,
+      "status": "candidate",
+      "access": "anonymous",
+      "homepage": "https://www.sclib.cn/v2/p/61c35688843e8311ef2adad6a9dd4efb0cd9",
+      "capabilities": [
+        "search",
+        "browse",
+        "page-image",
+        "ocr-text"
+      ],
+      "adapter": "none",
+      "adapterNote": "平台单一 JS /assets/js/v2.js?v=2026011508（len 12788），endpoint 待逆向。",
+      "license": "公版古籍",
+      "rightsNote": "免费开放。",
+      "effort": "2-3 人日",
+      "addedAt": "2026-11-27",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 167,
+        "checkedAt": "2026-11-27T15:54:23.311Z"
+      }
+    },
+    {
+      "id": "hunan",
+      "name": "湖南省图书馆·古籍智慧化平台",
+      "nameEn": "Hunan Library - Ancient Books Intelligence Platform",
+      "region": "湖南",
+      "category": "古籍",
+      "priority": 2,
+      "status": "candidate",
+      "access": "anonymous",
+      "homepage": "https://hnlib.ydzh.net/pancient/index.html#/zhh_home",
+      "capabilities": [
+        "search",
+        "browse",
+        "page-image",
+        "ocr-text",
+        "fulltext"
+      ],
+      "adapter": "none",
+      "adapterNote": "API baseURL=/gujiapi，端点 /guji/search/searchbook、/guji/search/seniorcontent、/guji/gujiCongInfo/list、/shumu/gujiShumuInfo/list；逐页 /readBook、/readBookImg、/readBookImgS、/readBookText、/readBookHigh；图片 CDN https://cdn.ydzh.net/yudi/pic/yudi/static3/。响应 AES 加密，请求头 device/appId/visitType/timeStamp/nonceStr/sign/Authorization，JS 硬编码密钥 CryptoJS.enc.Latin1.parse('abcd20220105hnsx')，有 setInterval+debugger 反调试。",
+      "license": "公版古籍",
+      "rightsNote": "平台标注开放数据；匿名访问。",
+      "effort": "1.5-2 人日（需破 AES + 签名）",
+      "addedAt": "2026-11-27",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 116,
+        "checkedAt": "2026-11-27T15:54:23.311Z"
+      }
+    }
+  ]
+}

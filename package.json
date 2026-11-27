@@ -13,6 +13,8 @@
   "files": [
     "index.js",
     "nlc.js",
+    "sources.js",
+    "sources-index.json",
     "client.js",
     "extractor.py",
     "render_page.py",
