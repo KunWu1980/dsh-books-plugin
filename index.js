@@ -424,14 +424,19 @@ function importPaths(state, paths) {
 function deleteBook(state, id, mode) {
 	const conf = state.getConfig();
 	const root = libRoot(conf);
-	const abs = decodeId(root, String(id || ""));
+	const bookId = String(id || "");
+	if (!bookId) throw new Error("A book id is required");
+	const abs = decodeId(root, bookId);
+	// Reject ids that do not point at a real file inside the library: otherwise a stale
+	// or forged id would silently pile up entries in hiddenBooks and never hide anything.
+	if (!existsSync(abs) || !isInside(abs, root) || samePath(abs, root)) {
+		throw new Error("Book file not found");
+	}
 	const hidden = hiddenIds(conf);
 	const nextHidden = new Set(hidden);
-	nextHidden.add(String(id));
+	nextHidden.add(bookId);
 
 	if (mode === "file") {
-		if (!existsSync(abs)) throw new Error("Book file not found");
-		if (!isInside(abs, root) || samePath(abs, root)) throw new Error("Invalid book path");
 		unlinkSync(abs);
 		// Prune empty parent folders up to (but not including) the library root.
 		let dir = path.dirname(abs);
@@ -447,7 +452,7 @@ function deleteBook(state, id, mode) {
 	// Clear category assignments for this book.
 	const { categories, bookCategories } = readCategories(conf);
 	const nextMap = { ...bookCategories };
-	delete nextMap[String(id)];
+	delete nextMap[bookId];
 
 	state.applyConfig({ hiddenBooks: [...nextHidden], bookCategories: nextMap }, false);
 	const updated = state.getConfig();
@@ -702,21 +707,53 @@ export function apply(ctx) {
 		},
 	};
 
+	// The connection service may not exist yet when this plugin is applied during a
+	// cold start (plugin load order is not guaranteed). Register immediately when it
+	// is available, otherwise wait for it instead of silently giving up — a silently
+	// skipped registration made every /api/books/* route 404 until the plugin was
+	// toggled off and on again.
 	ctx.effect(() => {
-		const connection = ctx.get("connection");
-		if (!connection?.fetch?.register) {
-			ctx.logger?.warn?.("[books] connection.fetch unavailable; UI panel routes not registered");
-			return;
+		let stopped = false;
+		const disposers = [];
+		let registered = false;
+
+		const registerRoutes = () => {
+			if (registered || stopped) return true;
+			const connection = ctx.get("connection");
+			if (!connection?.fetch?.register) return false;
+			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete"].map((name) =>
+				connection.fetch.register({
+					path: "/api/books/" + name,
+					methods: ["GET", "POST"],
+					requestBody: "buffered",
+					fetch: (request) => handleApi(request, state),
+				}),
+			);
+			disposers.push(...routes);
+			registered = true;
+			return true;
+		};
+
+		if (!registerRoutes()) {
+			ctx.logger?.info?.("[books] waiting for the connection service to register /api/books/* routes");
+			// React as soon as the service shows up (cordis emits this when a service is provided).
+			const unsubscribe = ctx.on?.("internal/service", () => registerRoutes());
+			if (typeof unsubscribe === "function") disposers.push(unsubscribe);
+			// Belt and braces: poll briefly in case the event name differs in this build.
+			let attempts = 0;
+			const timer = setInterval(() => {
+				attempts += 1;
+				if (registerRoutes() || attempts > 120) clearInterval(timer);
+			}, 500);
+			if (timer.unref) timer.unref();
+			disposers.push(() => clearInterval(timer));
 		}
-		const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete"].map((name) =>
-			connection.fetch.register({
-				path: "/api/books/" + name,
-				methods: ["GET", "POST"],
-				requestBody: "buffered",
-				fetch: (request) => handleApi(request, state),
-			}),
-		);
-		return () => Promise.allSettled(routes.map((dispose) => dispose()));
+
+		return () => {
+			stopped = true;
+			const pending = disposers.splice(0);
+			return Promise.allSettled(pending.map((dispose) => (typeof dispose === "function" ? dispose() : dispose)));
+		};
 	}, "books /api routes");
 
 	ctx.effect(() => ctx.tools.register({
