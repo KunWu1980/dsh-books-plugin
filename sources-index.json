@@ -2,10 +2,10 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T19:48:23.027Z",
-  "fetchedAt": "2026-11-27T19:48:15.927Z",
+  "updatedAt": "2026-11-27T20:21:58.703Z",
+  "fetchedAt": "2026-11-27T20:21:52.866Z",
   "count": 14,
-  "activeCount": 6,
+  "activeCount": 7,
   "sources": [
     {
       "id": "nlc",
@@ -31,8 +31,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 234,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 303,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -59,8 +59,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 1949,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 2242,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -87,8 +87,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 340,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 353,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -115,8 +115,36 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 77,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 295,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
+      }
+    },
+    {
+      "id": "qinhai",
+      "name": "青海省图书馆·青海方志",
+      "nameEn": "Qinghai Provincial Library - Local Gazetteers",
+      "region": "青海",
+      "category": "方志",
+      "priority": 1,
+      "status": "active",
+      "access": "anonymous",
+      "homepage": "http://crrs.renrentong.cn/qhfz/index.html",
+      "capabilities": [
+        "browse",
+        "search",
+        "page-image"
+      ],
+      "adapter": "builtin:qh",
+      "adapterNote": "已接入（图片适配器）：180 部地方史志，逐页大图阅读。书目按 20/页翻页，searchKey 服务端过滤有效（青海省志→71）；bookInfo.aspx 详情 359 页；newsShow.aspx 一次性列出全书页图做 pageCount 与逐页 URL。",
+      "license": "方志公版内容",
+      "rightsNote": "公开可访问，仅在线阅读。",
+      "effort": "已接入（图片适配器）",
+      "addedAt": "2026-11-28",
+      "health": {
+        "ok": true,
+        "httpStatus": 200,
+        "latencyMs": 156,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -144,8 +172,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 413,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 548,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -173,8 +201,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 168,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 178,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -202,8 +230,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 197,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 225,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -228,8 +256,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 174,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 176,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -258,8 +286,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 87,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 126,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -284,8 +312,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 152,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 148,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -311,8 +339,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 321,
-        "checkedAt": "2026-11-27T19:48:15.927Z",
+        "latencyMs": 343,
+        "checkedAt": "2026-11-27T20:21:52.866Z",
         "note": "via curl fallback"
       }
     },
@@ -338,8 +366,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 335,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 365,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     },
     {
@@ -364,34 +392,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 194,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
-      }
-    },
-    {
-      "id": "qinhai",
-      "name": "青海省图书馆·青海方志",
-      "nameEn": "Qinghai Provincial Library - Local Gazetteers",
-      "region": "青海",
-      "category": "方志",
-      "priority": 3,
-      "status": "candidate",
-      "access": "anonymous",
-      "homepage": "http://crrs.renrentong.cn/qhfz/index.html",
-      "capabilities": [
-        "browse"
-      ],
-      "adapter": "none",
-      "adapterNote": "静态 HTML 站点，逐页解析成本高。",
-      "license": "方志公版内容",
-      "rightsNote": "公开可访问。",
-      "effort": "1-2 人日",
-      "addedAt": "2026-11-28",
-      "health": {
-        "ok": true,
-        "httpStatus": 200,
-        "latencyMs": 2321,
-        "checkedAt": "2026-11-27T19:48:15.927Z"
+        "latencyMs": 225,
+        "checkedAt": "2026-11-27T20:21:52.866Z"
       }
     }
   ]
