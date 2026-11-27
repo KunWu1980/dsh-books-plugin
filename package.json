@@ -12,6 +12,7 @@
   },
   "files": [
     "index.js",
+    "nlc.js",
     "client.js",
     "extractor.py",
     "render_page.py",

@@ -124,5 +124,22 @@
   "searchResults": "{n} match(es) (up to 60 shown)",
   "searchEmpty": "Enter a keyword",
   "searchJump": "Jump",
-  "searchScanned": "Scanned PDFs have no text layer and cannot be searched."
+  "searchScanned": "Scanned PDFs have no text layer and cannot be searched.",
+  "onlineLibrary": "Online library",
+  "localLibrary": "My bookshelf",
+  "nlcHint": "National Library of China · public-domain Republican-era texts (browse page by page, never downloaded locally)",
+  "nlcSearchPlaceholder": "Search titles or keywords (e.g. 县志)",
+  "nlcSearchBtn": "Search",
+  "nlcCatalog": "Browse catalog",
+  "nlcTotal": "{n} titles",
+  "nlcEmpty": "No matching titles",
+  "nlcLoading": "Loading...",
+  "nlcFail": "Failed to load",
+  "nlcBackList": "Back to list",
+  "nlcPageOf": "Page {n} / {total}",
+  "nlcOcr": "OCR text for this page (auto-recognized, may contain errors)",
+  "nlcNoOcr": "No recognizable text on this page",
+  "nlcLoadMore": "Load more",
+  "nlcDisclaimer": "Resources come from the National Library of China public digital collections, for online reading only; copyright remains with the respective rights holders.",
+  "nlcPublish": "{n} · {p}"
 }

@@ -63,6 +63,16 @@ window.__ModuleLoader__.load({
       bookSearchHint: '在当前书籍的全部章节中搜索，点击结果可跳转到对应章节。',
       searchNoResults: '没有找到匹配的内容', searchResults: '找到 {n} 处（最多显示 60 处）',
       searchEmpty: '请输入关键词', searchJump: '跳转', searchScanned: '扫描版 PDF 没有文字层，无法全文搜索。',
+      // National Library online reading
+      onlineLibrary: '在线图书馆', localLibrary: '本地书架',
+      nlcHint: '国家图书馆 · 公版民国文献（在线逐页浏览，不下载到本地）',
+      nlcSearchPlaceholder: '检索书名或关键词（如：县志）', nlcSearchBtn: '检索',
+      nlcCatalog: '浏览书目', nlcTotal: '共 {n} 条', nlcEmpty: '没有找到相关书目',
+      nlcLoading: '加载中...', nlcFail: '加载失败', nlcBackList: '返回书目',
+      nlcPageOf: '第 {n} 页 / 共 {total} 页', nlcOcr: '本页 OCR 文字（自动识别，可能有误）',
+      nlcNoOcr: '本页没有可识别的文字', nlcLoadMore: '加载更多',
+      nlcDisclaimer: '资源来自国家图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。',
+      nlcPublish: '{n} · {p}',
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
@@ -120,6 +130,16 @@ window.__ModuleLoader__.load({
       bookSearchHint: 'Search across all chapters of the current book; click a result to jump to that chapter.',
       searchNoResults: 'No matches found', searchResults: '{n} match(es) (up to 60 shown)',
       searchEmpty: 'Enter a keyword', searchJump: 'Jump', searchScanned: 'Scanned PDFs have no text layer and cannot be searched.',
+      // National Library online reading
+      onlineLibrary: 'Online library', localLibrary: 'My bookshelf',
+      nlcHint: 'National Library of China · public-domain Republican-era texts (browse page by page, never downloaded locally)',
+      nlcSearchPlaceholder: 'Search titles or keywords (e.g. 县志)', nlcSearchBtn: 'Search',
+      nlcCatalog: 'Browse catalog', nlcTotal: '{n} titles', nlcEmpty: 'No matching titles',
+      nlcLoading: 'Loading...', nlcFail: 'Failed to load', nlcBackList: 'Back to list',
+      nlcPageOf: 'Page {n} / {total}', nlcOcr: 'OCR text for this page (auto-recognized, may contain errors)',
+      nlcNoOcr: 'No recognizable text on this page', nlcLoadMore: 'Load more',
+      nlcDisclaimer: 'Resources come from the National Library of China public digital collections, for online reading only; copyright remains with the respective rights holders.',
+      nlcPublish: '{n} · {p}',
     };
 
     const C = {
@@ -136,6 +156,19 @@ window.__ModuleLoader__.load({
 
     const STYLES = `
       .books-root{height:100%;box-sizing:border-box;background:${C.bg};color:${C.text};display:flex;flex-direction:column;font-size:14px;}
+      .books-mode-tabs{display:flex;gap:2px;padding:2px;background:${C.layer1};border-radius:8px;}
+      .books-mode-tab{padding:5px 12px;border:none;border-radius:6px;background:transparent;color:${C.muted};font-size:13px;cursor:pointer;white-space:nowrap;}
+      .books-mode-tab.active{background:${C.brand};color:#fff;font-weight:600;}
+      .books-nlc-search{display:flex;gap:8px;margin-bottom:10px;}
+      .books-nlc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+      .books-nlc-card{padding:12px;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};cursor:pointer;}
+      .books-nlc-card:hover{border-color:${C.brand};}
+      .books-nlc-card-title{font-weight:600;line-height:1.4;margin-bottom:6px;}
+      .books-nlc-card-meta{font-size:12px;color:${C.muted};line-height:1.6;}
+      .books-nlc-page-wrap{display:flex;flex-direction:column;gap:10px;overflow:auto;}
+      .books-nlc-page-img{max-width:100%;width:100%;border:1px solid ${C.border};border-radius:6px;background:${C.layer2};}
+      .books-nlc-ocr{padding:10px 12px;border:1px solid ${C.border};border-radius:8px;background:${C.layer1};font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:280px;overflow:auto;}
+      .books-nlc-disclaimer{font-size:11px;color:${C.faint};padding:8px 0;line-height:1.5;}
       .books-head{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid ${C.border};flex:none;}
       .books-title{font-size:17px;font-weight:600;flex:1;}
       .books-btn{border:1px solid ${C.border};background:${C.layer1};color:${C.text};border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px;}
@@ -423,6 +456,17 @@ window.__ModuleLoader__.load({
       const [searchQ, setSearchQ] = React.useState('');
       const [searchResult, setSearchResult] = React.useState(null);
       const progressTimer = React.useRef(null);
+      // National Library online reading (separate from the local shelf; nothing is saved locally)
+      const [mode, setMode] = React.useState('local'); // local|online
+      const [nlcQuery, setNlcQuery] = React.useState('');
+      const [nlcList, setNlcList] = React.useState([]);
+      const [nlcTotal, setNlcTotal] = React.useState(0);
+      const [nlcLoading, setNlcLoading] = React.useState(false);
+      const [nlcStatus, setNlcStatus] = React.useState('idle'); // idle|loading|error
+      const [nlcBook, setNlcBook] = React.useState(null);  // {sourceId,volume,title,pageCount}
+      const [nlcPageNo, setNlcPageNo] = React.useState(1);  // 1-based
+      const [nlcPageData, setNlcPageData] = React.useState(null); // {filePath,text}
+      const [nlcPageLoading, setNlcPageLoading] = React.useState(false);
 
       const loadList = React.useCallback(async () => {
         setStatus('loading');
@@ -444,6 +488,60 @@ window.__ModuleLoader__.load({
       }, []);
 
       React.useEffect(() => { void loadList(); }, [loadList]);
+
+      // ---- National Library online reading functions ----
+      const nlcCatalog = React.useCallback(async () => {
+        setNlcLoading(true); setNlcStatus('loading'); setNlcBook(null);
+        try {
+          const data = await api('nlc/catalog?page=1&rows=30');
+          setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
+        } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
+        finally { setNlcLoading(false); }
+      }, []);
+
+      const nlcDoSearch = React.useCallback(async () => {
+        const q = nlcQuery.trim();
+        if (!q) return;
+        setNlcLoading(true); setNlcStatus('loading'); setNlcBook(null);
+        try {
+          const data = await api('nlc/search?q=' + encodeURIComponent(q) + '&page=1&rows=40');
+          setNlcList(data.books || []); setNlcTotal(data.total || 0); setNlcStatus('idle');
+        } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
+        finally { setNlcLoading(false); }
+      }, [nlcQuery]);
+
+      const nlcOpenBook = React.useCallback(async (book) => {
+        setNlcLoading(true); setNlcStatus('loading');
+        try {
+          const meta = await api('nlc/meta?sourceId=' + encodeURIComponent(book.sourceId) + '&volume=' + encodeURIComponent(book.volume || '001'));
+          setNlcBook({
+            sourceId: book.sourceId, volume: book.volume || '001',
+            title: meta.title || book.title || book.section || '',
+            pageCount: meta.pageCount || 1,
+            identifier: meta.identifier || '',
+          });
+          setNlcPageNo(1);
+          setNlcStatus('idle');
+        } catch (e) { setNlcStatus('error'); setErrorText(String(e && e.message || e)); }
+        finally { setNlcLoading(false); }
+      }, []);
+
+      const nlcLoadPage = React.useCallback(async (pn) => {
+        if (!nlcBook) return;
+        const target = Math.max(1, Math.min(nlcBook.pageCount, pn));
+        setNlcPageLoading(true); setNlcPageNo(target);
+        try {
+          const data = await api('nlc/page?sourceId=' + encodeURIComponent(nlcBook.sourceId)
+            + '&volume=' + encodeURIComponent(nlcBook.volume) + '&page=' + target);
+          setNlcPageData({ filePath: data.filePath, text: data.text || '' });
+        } catch (e) { setErrorText(String(e && e.message || e)); }
+        finally { setNlcPageLoading(false); }
+      }, [nlcBook]);
+
+      // Load page 1 whenever a book is opened.
+      React.useEffect(() => {
+        if (nlcBook) void nlcLoadPage(1);
+      }, [nlcBook, nlcLoadPage]);
 
       // Left/Right arrow keys flip pages: image mode flips one scanned page,
       // text mode scrolls one screen-height page inside the text viewport.
@@ -833,15 +931,81 @@ window.__ModuleLoader__.load({
           reader
             ? h('button', { className: 'books-btn', onClick: () => { setReader(null); setChapter(-1); void loadList(); } }, '‹ ' + t('back'))
             : h(React.Fragment, null,
-                h('button', { className: 'books-btn', onClick: () => setShowImport((v) => !v) }, t('import')),
-                h('button', { className: 'books-btn', onClick: openSettings }, '⚙ ' + t('settings')),
-                h('button', { className: 'books-btn', onClick: () => void loadList() }, t('refresh')),
+                h('div', { className: 'books-mode-tabs' },
+                  h('button', {
+                    className: 'books-mode-tab' + (mode === 'local' ? ' active' : ''),
+                    onClick: () => setMode('local'),
+                  }, '\uD83D\uDCDA ' + t('localLibrary')),
+                  h('button', {
+                    className: 'books-mode-tab' + (mode === 'online' ? ' active' : ''),
+                    onClick: () => { setMode('online'); if (nlcList.length === 0 && !nlcBook) void nlcCatalog(); },
+                  }, '\uD83C\uDFDB\uFE0F ' + t('onlineLibrary')),
+                ),
+                mode === 'local' && h('button', { className: 'books-btn', onClick: () => setShowImport((v) => !v) }, t('import')),
+                mode === 'local' && h('button', { className: 'books-btn', onClick: openSettings }, '⚙ ' + t('settings')),
+                mode === 'local' && h('button', { className: 'books-btn', onClick: () => void loadList() }, t('refresh')),
               ),
         ),
         h('div', { className: 'books-body' },
-          status === 'loading' && h('div', { className: 'books-loading' }, t('loading')),
-          status !== 'loading' && errorText && h('div', { className: 'books-error' }, t('error') + ': ' + errorText),
-          status === 'idle' && !reader && h('div', { className: 'books-main' },
+          // ---- Online library (National Library of China) ----
+          mode === 'online' && h('div', { className: 'books-nlc' , style: { padding: 16, overflow: 'auto', flex: 1 } },
+            h('div', { className: 'books-hint' }, t('nlcHint')),
+            h('div', { className: 'books-nlc-disclaimer' }, t('nlcDisclaimer')),
+            nlcBook
+              ? h('div', { className: 'books-nlc-page-wrap' },
+                  h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', margin: '6px 0' } },
+                    h('button', { className: 'books-btn', onClick: () => { setNlcBook(null); setNlcPageData(null); } }, '‹ ' + t('nlcBackList')),
+                    h('span', { style: { fontWeight: 600 } }, nlcBook.title),
+                  ),
+                  h('div', { className: 'books-pager' },
+                    h('button', { className: 'books-btn', disabled: nlcPageNo <= 1 || nlcPageLoading, onClick: () => void nlcLoadPage(nlcPageNo - 1) }, '‹ ' + t('prevPage')),
+                    h('span', { className: 'books-page-label' }, t('nlcPageOf').replace('{n}', nlcPageNo).replace('{total}', nlcBook.pageCount)),
+                    h('button', { className: 'books-btn', disabled: nlcPageNo >= nlcBook.pageCount || nlcPageLoading, onClick: () => void nlcLoadPage(nlcPageNo + 1) }, t('nextPage') + ' ›'),
+                  ),
+                  nlcPageLoading && h('div', { className: 'books-loading' }, t('nlcLoading')),
+                  nlcPageData && nlcPageData.filePath && h('img', {
+                    className: 'books-nlc-page-img',
+                    src: '/api/books/nlc/image?file=' + encodeURIComponent(nlcPageData.filePath),
+                    alt: t('nlcPageOf').replace('{n}', nlcPageNo).replace('{total}', nlcBook.pageCount),
+                  }),
+                  nlcPageData && h('div', null,
+                    h('div', { className: 'books-cats-title' }, t('nlcOcr')),
+                    nlcPageData.text
+                      ? h('div', { className: 'books-nlc-ocr' }, nlcPageData.text)
+                      : h('div', { className: 'books-hint' }, t('nlcNoOcr')),
+                  ),
+                )
+              : h(React.Fragment, null,
+                  h('div', { className: 'books-nlc-search' },
+                    h('input', {
+                      className: 'books-input', placeholder: t('nlcSearchPlaceholder'), value: nlcQuery,
+                      onChange: (e) => setNlcQuery(e.target.value),
+                      onKeyDown: (e) => { if (e.key === 'Enter') void nlcDoSearch(); },
+                    }),
+                    h('button', { className: 'books-btn', onClick: () => void nlcDoSearch(), disabled: nlcLoading }, t('nlcSearchBtn')),
+                    h('button', { className: 'books-btn', onClick: () => void nlcCatalog(), disabled: nlcLoading }, t('nlcCatalog')),
+                  ),
+                  (nlcLoading || nlcStatus === 'loading') && h('div', { className: 'books-loading' }, t('nlcLoading')),
+                  nlcStatus === 'error' && h('div', { className: 'books-error' }, t('nlcFail') + ': ' + errorText),
+                  nlcStatus === 'idle' && h('div', { className: 'books-hint' }, t('nlcTotal').replace('{n}', nlcTotal)),
+                  nlcList.length === 0 && nlcStatus === 'idle'
+                    ? h('div', { className: 'books-empty' }, t('nlcEmpty'))
+                    : h('div', { className: 'books-nlc-grid' }, nlcList.map((b) =>
+                        h('div', { key: b.sourceId, className: 'books-nlc-card', onClick: () => void nlcOpenBook(b) },
+                          h('div', { className: 'books-nlc-card-title' }, b.title || b.section || t('untitled')),
+                          h('div', { className: 'books-nlc-card-meta' },
+                            t('nlcPublish').replace('{n}', b.publishDate || '').replace('{p}', b.publisher || ''),
+                            b.classification ? h('div', null, b.classification) : null,
+                            b.abstract ? h('div', null, b.abstract.slice(0, 80)) : null,
+                          ),
+                        ),
+                      )),
+                ),
+          ),
+          // ---- Local shelf ----
+          mode === 'local' && status === 'loading' && h('div', { className: 'books-loading' }, t('loading')),
+          mode === 'local' && status !== 'loading' && errorText && h('div', { className: 'books-error' }, t('error') + ': ' + errorText),
+          mode === 'local' && status === 'idle' && !reader && h('div', { className: 'books-main' },
             h('aside', { className: 'books-cats' },
               h('div', {
                 className: 'books-cat-item' + (activeCat === null ? ' active' : ''),
@@ -1011,7 +1175,7 @@ window.__ModuleLoader__.load({
                 )),
             ),
           ),
-          status === 'idle' && reader && h('div', { className: 'books-reader' },
+          mode === 'local' && status === 'idle' && reader && h('div', { className: 'books-reader' },
             reader.mode === 'images' && h('div', { className: 'books-warn' },
               t('scannedHint').replace('{n}', reader.pageCount || 0)),
             reader.mode !== 'images' && reader.warning && h('div', { className: 'books-warn' }, reader.warning || t('noText')),

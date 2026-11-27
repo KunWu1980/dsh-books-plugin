@@ -11,6 +11,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, readd
 import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as nlc from "./nlc.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const EXTRACTOR = path.join(here, "extractor.py");
@@ -835,6 +836,44 @@ async function handleApi(request, state) {
 			return jsonResponse({ ok: false, error: String(e?.message || e) }, 400);
 		}
 	}
+	// ---- National Library of China (public-domain Republican gazetteers) ----
+	// These are read-only browsing proxies. Nothing is written to the local shelf.
+	if (p === "/api/books/nlc/catalog" && method === "GET") {
+		try {
+			return jsonResponse(await nlc.nlcCatalog(url.searchParams.get("page") || 1, url.searchParams.get("rows") || 20));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/nlc/search" && method === "GET") {
+		try {
+			return jsonResponse(await nlc.nlcSearch(url.searchParams.get("q") || "", url.searchParams.get("page") || 1, url.searchParams.get("rows") || 30));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/nlc/meta" && method === "GET") {
+		try {
+			return jsonResponse(await nlc.nlcBookMeta(url.searchParams.get("sourceId") || "", url.searchParams.get("volume") || "001"));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/nlc/page" && method === "GET") {
+		try {
+			return jsonResponse(await nlc.nlcPage(
+				url.searchParams.get("sourceId") || "", url.searchParams.get("volume") || "001",
+				url.searchParams.get("page") || 1,
+			));
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
+	if (p === "/api/books/nlc/image" && method === "GET") {
+		try {
+			const bytes = await nlc.nlcImage(url.searchParams.get("file") || "");
+			return new Response(bytes, {
+				status: 200,
+				headers: {
+					"content-type": "image/jpeg",
+					"cache-control": "public, max-age=86400",
+					"content-length": String(bytes.length),
+				},
+			});
+		} catch (e) { return jsonResponse({ ok: false, error: String(e?.message || e) }, 400); }
+	}
 	return jsonResponse({ ok: false, error: "Unknown route" }, 404);
 }
 
@@ -895,7 +934,7 @@ export function apply(ctx) {
 			if (registered || stopped) return true;
 			const connection = ctx.get("connection");
 			if (!connection?.fetch?.register) return false;
-			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search"].map((name) =>
+			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search", "nlc/catalog", "nlc/search", "nlc/meta", "nlc/page", "nlc/image"].map((name) =>
 				connection.fetch.register({
 					path: "/api/books/" + name,
 					methods: ["GET", "POST"],

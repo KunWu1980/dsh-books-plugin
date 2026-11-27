@@ -124,5 +124,22 @@
   "searchResults": "找到 {n} 处（最多显示 60 处）",
   "searchEmpty": "请输入关键词",
   "searchJump": "跳转",
-  "searchScanned": "扫描版 PDF 没有文字层，无法全文搜索。"
+  "searchScanned": "扫描版 PDF 没有文字层，无法全文搜索。",
+  "onlineLibrary": "在线图书馆",
+  "localLibrary": "本地书架",
+  "nlcHint": "国家图书馆 · 公版民国文献（在线逐页浏览，不下载到本地）",
+  "nlcSearchPlaceholder": "检索书名或关键词（如：县志）",
+  "nlcSearchBtn": "检索",
+  "nlcCatalog": "浏览书目",
+  "nlcTotal": "共 {n} 条",
+  "nlcEmpty": "没有找到相关书目",
+  "nlcLoading": "加载中...",
+  "nlcFail": "加载失败",
+  "nlcBackList": "返回书目",
+  "nlcPageOf": "第 {n} 页 / 共 {total} 页",
+  "nlcOcr": "本页 OCR 文字（自动识别，可能有误）",
+  "nlcNoOcr": "本页没有可识别的文字",
+  "nlcLoadMore": "加载更多",
+  "nlcDisclaimer": "资源来自国家图书馆公开数字资源，仅供在线阅读，版权归原权利方所有。",
+  "nlcPublish": "{n} · {p}"
 }
