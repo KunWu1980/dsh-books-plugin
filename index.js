@@ -18,8 +18,6 @@ const RENDERER = path.join(here, "render_page.py");
 const PAGE_CACHE = path.join(homedir(), ".dsh", "books-plugin", "page-cache");
 const EXTRACT_CACHE_DIR = path.join(homedir(), ".dsh", "books-plugin", "extract-cache");
 const CONFIG_FILE = path.join(homedir(), ".dsh", "books-plugin", "config.json");
-// Default library: a "Books" folder under the user home directory.
-// Users can change this from the settings panel (which can also move existing books).
 const DEFAULT_LIB = path.join(homedir(), "Books");
 const SUPPORTED = [".txt", ".epub", ".pdf", ".azw3", ".mobi", ".azw", ".doc", ".docx"];
 
@@ -35,9 +33,13 @@ const TYPO_DEFAULTS = {
 	font: "fangsong",
 	indent: true,
 	justify: true,
+	// Reading colour scheme. "auto" follows the host theme; the rest are
+	// fixed palettes (paper, sepia for eye comfort, night, dark).
+	theme: "auto",
 };
 const TYPO_PRESETS = ["gov", "comfort", "compact", "large", "auto", "custom"];
 const TYPO_FONTS = ["fangsong", "song", "hei", "kai", "system"];
+const TYPO_THEMES = ["auto", "paper", "sepia", "night", "dark"];
 
 function clampNumber(value, lo, hi, fallback) {
 	const n = Number(value);
@@ -56,11 +58,45 @@ function normalizeTypography(input) {
 		font: TYPO_FONTS.includes(String(src.font)) ? String(src.font) : TYPO_DEFAULTS.font,
 		indent: src.indent === undefined ? TYPO_DEFAULTS.indent : Boolean(src.indent),
 		justify: src.justify === undefined ? TYPO_DEFAULTS.justify : Boolean(src.justify),
+		theme: TYPO_THEMES.includes(String(src.theme)) ? String(src.theme) : TYPO_DEFAULTS.theme,
 	};
 }
 
 function readTypography(config) {
 	return normalizeTypography(config?.typography);
+}
+
+// ---------------------------------------------------------------------------
+// Reading progress and per-book typography overrides.
+//   progress:        { [bookId]: { chapter, page, ratio, updatedAt } }
+//   bookTypography:  { [bookId]: typography }
+// Kept in config.json so a restart resumes exactly where the reader stopped.
+// ---------------------------------------------------------------------------
+
+function normalizeProgress(input) {
+	const src = typeof input === "object" && input !== null ? input : {};
+	const chapter = Math.round(clampNumber(src.chapter, -1, 100000, -1));
+	const page = Math.round(clampNumber(src.page, 0, 100000, 0));
+	const ratio = Number(clampNumber(src.ratio, 0, 1, 0).toFixed(4));
+	return { chapter, page, ratio, updatedAt: Date.now() };
+}
+
+function readProgress(config, id) {
+	const map = config?.progress && typeof config.progress === "object" ? config.progress : {};
+	const entry = map[id];
+	if (!entry || typeof entry !== "object") return null;
+	return normalizeProgress({ ...entry, updatedAt: entry.updatedAt });
+}
+
+function readBookTypography(config, id) {
+	const map = config?.bookTypography && typeof config.bookTypography === "object" ? config.bookTypography : {};
+	const entry = map[id];
+	return entry && typeof entry === "object" ? normalizeTypography(entry) : null;
+}
+
+/** Effective typography for a book: its own override, else the global setting. */
+function effectiveTypography(config, id) {
+	return readBookTypography(config, id) || readTypography(config);
 }
 
 function readConfig() {
@@ -384,6 +420,36 @@ function extractBook(config, id) {
 	return result;
 }
 
+/**
+ * Full-text search inside one book. Works off the cached extraction, so a book
+ * is never re-parsed just to look for a word. Returns at most `limit` hits,
+ * each carrying its chapter index (so the panel can jump there) plus a short
+ * context snippet.
+ */
+function searchBook(book, query, limit) {
+	const needle = String(query || "").toLowerCase();
+	const chapters = Array.isArray(book?.chapters) ? book.chapters : [];
+	const matches = [];
+	for (let ci = 0; ci < chapters.length && matches.length < limit; ci++) {
+		const text = String(chapters[ci]?.text || "");
+		if (!text) continue;
+		const lower = text.toLowerCase();
+		let at = lower.indexOf(needle);
+		while (at >= 0 && matches.length < limit) {
+			const from = Math.max(0, at - 24);
+			const to = Math.min(text.length, at + needle.length + 36);
+			matches.push({
+				chapter: ci,
+				heading: String(chapters[ci]?.heading || ""),
+				offset: at,
+				snippet: (from > 0 ? "…" : "") + text.slice(from, to).replace(/\s+/g, " ").trim() + (to < text.length ? "…" : ""),
+			});
+			at = lower.indexOf(needle, at + needle.length);
+		}
+	}
+	return { ok: true, query, total: matches.length, truncated: matches.length >= limit, matches };
+}
+
 /** Render one page of a (scanned) PDF to a cached PNG; return the file path. */
 function renderPage(config, id, pageNo, zoom) {
 	const root = libRoot(config);
@@ -567,7 +633,14 @@ async function handleApi(request, state) {
 			ok: true,
 			libraryPath, defaultLibraryPath: DEFAULT_LIB,
 			isCustom: !samePath(libraryPath, DEFAULT_LIB),
-			books: view.books, categories: view.categories,
+			// Attach the saved reading position so the shelf can show progress
+			// badges without a second request.
+			books: view.books.map((b) => ({
+				...b,
+				progress: readProgress(config, b.id),
+				hasTypography: Boolean(config?.bookTypography && config.bookTypography[b.id]),
+			})),
+			categories: view.categories,
 			typography: readTypography(config),
 		});
 	}
@@ -585,7 +658,44 @@ async function handleApi(request, state) {
 	if (p === "/api/books/read" && method === "GET") {
 		const id = url.searchParams.get("id") || "";
 		try {
-			return jsonResponse({ ok: true, book: extractBook(config, id) });
+			// The saved position and the book's effective typography travel with
+			// the text so opening a book resumes exactly where it stopped.
+			return jsonResponse({
+				ok: true,
+				book: extractBook(config, id),
+				progress: readProgress(config, id),
+				typography: effectiveTypography(config, id),
+			});
+		} catch (e) {
+			return jsonResponse({ ok: false, error: String(e?.message || e) }, 400);
+		}
+	}
+	if (p === "/api/books/progress" && method === "POST") {
+		let body;
+		try {
+			body = await request.json();
+		} catch {
+			return jsonResponse({ ok: false, error: "Invalid JSON" }, 400);
+		}
+		const id = String(body?.id || "");
+		try {
+			decodeId(libRoot(config), id); // reject ids that do not resolve to a file
+		} catch {
+			return jsonResponse({ ok: false, error: "Book file not found" }, 400);
+		}
+		const entry = normalizeProgress(body);
+		const map = { ...(config.progress && typeof config.progress === "object" ? config.progress : {}) };
+		map[id] = entry;
+		state.applyConfig({ progress: map }, false);
+		return jsonResponse({ ok: true, progress: entry });
+	}
+	if (p === "/api/books/search" && method === "GET") {
+		const id = url.searchParams.get("id") || "";
+		const q = (url.searchParams.get("q") || "").trim();
+		const limit = Math.round(clampNumber(url.searchParams.get("limit"), 1, 200, 60));
+		if (!q) return jsonResponse({ ok: false, error: "Empty query" }, 400);
+		try {
+			return jsonResponse(searchBook(extractBook(config, id), q, limit));
 		} catch (e) {
 			return jsonResponse({ ok: false, error: String(e?.message || e) }, 400);
 		}
@@ -645,6 +755,16 @@ async function handleApi(request, state) {
 		// {reset} while changing where books live.
 		if (body?.typography) {
 			state.applyConfig({ typography: normalizeTypography(body.typography) }, false);
+		}
+		if (body?.bookTypography && typeof body.bookTypography === "object") {
+			// Per-book overrides, e.g. { bookTypography: { <id>: typography } }.
+			const cur = state.getConfig();
+			const map = cur.bookTypography && typeof cur.bookTypography === "object" ? { ...cur.bookTypography } : {};
+			for (const [bid, value] of Object.entries(body.bookTypography)) {
+				if (value === null) delete map[bid];
+				else map[bid] = normalizeTypography(value);
+			}
+			state.applyConfig({ bookTypography: map }, false);
 		}
 		let moveResult = null;
 		if (body?.reset || body?.libraryPath) {
@@ -775,7 +895,7 @@ export function apply(ctx) {
 			if (registered || stopped) return true;
 			const connection = ctx.get("connection");
 			if (!connection?.fetch?.register) return false;
-			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete"].map((name) =>
+			const routes = ["bootstrap", "status", "list", "read", "page", "config", "import", "categories", "delete", "progress", "search"].map((name) =>
 				connection.fetch.register({
 					path: "/api/books/" + name,
 					methods: ["GET", "POST"],

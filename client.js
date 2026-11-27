@@ -50,6 +50,19 @@ window.__ModuleLoader__.load({
       typoRule: '默认依据《党政机关公文格式》GB/T 9704-2012：正文仿宋，每面 22 行、每行 28 字，行距 1.75 倍。字号随窗口自动缩放以保持该行数/字数。',
       typoSaved: '排版已保存', typoCustom: '自定义',
       typoLimited: '（窗口较小，已自动缩减）',
+      // Reading theme
+      theme: '配色', themeAuto: '跟随系统', themePaper: '纸白', themeSepia: '护眼米黄', themeNight: '夜间', themeDark: '深灰',
+      themeHint: '配色只影响阅读界面，不影响书架。',
+      // Per-book typography + progress
+      typoScope: '排版范围', typoScopeBook: '仅此书', typoScopeGlobal: '全局（所有书）',
+      typoScopeHint: '「仅此书」保存的排版只对该书生效；「全局」是默认排版。',
+      progressBadge: '读到 {n}%', progressResume: '上次读到这里（第 {n} 章 / 第 {p} 页），已为你续读。',
+      finished: '已读完',
+      // In-book full-text search
+      bookSearch: '书内搜索', bookSearchPlaceholder: '输入关键词搜索本书',
+      bookSearchHint: '在当前书籍的全部章节中搜索，点击结果可跳转到对应章节。',
+      searchNoResults: '没有找到匹配的内容', searchResults: '找到 {n} 处（最多显示 60 处）',
+      searchEmpty: '请输入关键词', searchJump: '跳转', searchScanned: '扫描版 PDF 没有文字层，无法全文搜索。',
     };
     const en = {
       meta: { title: 'Books', description: 'Read and manage your book library inside DeepSeek Harness' },
@@ -94,6 +107,19 @@ window.__ModuleLoader__.load({
       typoRule: 'Defaults follow GB/T 9704-2012 (Chinese official document format): FangSong body, 22 lines per page, 28 characters per line, 1.75x line spacing. The font size scales with the window so that line/character counts stay exact.',
       typoSaved: 'Typography saved', typoCustom: 'Custom',
       typoLimited: '(auto-reduced to fit the window)',
+      // Reading theme
+      theme: 'Theme', themeAuto: 'Follow system', themePaper: 'Paper', themeSepia: 'Sepia (eye-friendly)', themeNight: 'Night', themeDark: 'Dark grey',
+      themeHint: 'The theme affects only the reading view, not the shelf.',
+      // Per-book typography + progress
+      typoScope: 'Typography scope', typoScopeBook: 'This book only', typoScopeGlobal: 'Global (all books)',
+      typoScopeHint: '"This book only" saves typography for this book; "Global" is the default.',
+      progressBadge: '{n}% read', progressResume: 'You were at chapter {n} / page {p}; resumed for you.',
+      finished: 'Finished',
+      // In-book full-text search
+      bookSearch: 'Search in book', bookSearchPlaceholder: 'Enter a keyword to search this book',
+      bookSearchHint: 'Search across all chapters of the current book; click a result to jump to that chapter.',
+      searchNoResults: 'No matches found', searchResults: '{n} match(es) (up to 60 shown)',
+      searchEmpty: 'Enter a keyword', searchJump: 'Jump', searchScanned: 'Scanned PDFs have no text layer and cannot be searched.',
     };
 
     const C = {
@@ -203,6 +229,18 @@ window.__ModuleLoader__.load({
       .books-del-label{font-weight:600;font-size:13px;color:${C.text};}
       .books-del-note{font-size:12px;color:${C.faint};margin-top:2px;line-height:1.5;}
       .books-del-warn{font-size:12px;color:${C.error};margin:8px 0;}
+      .books-theme-dots{display:flex;gap:6px;align-items:center;}
+      .books-theme-dot{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;}
+      .books-theme-dot.active{border-color:${C.brand};}
+      .books-search-box{border:1px solid ${C.border};background:${C.layer1};border-radius:8px;padding:10px 12px;margin-bottom:12px;}
+      .books-search-input{width:100%;box-sizing:border-box;border:1px solid ${C.border};background:${C.bg};color:${C.text};border-radius:6px;padding:6px 10px;font-size:13px;outline:none;}
+      .books-search-input:focus{border-color:${C.brand};}
+      .books-search-result{display:flex;gap:8px;align-items:flex-start;padding:6px 4px;border-bottom:1px solid ${C.border};font-size:12px;}
+      .books-search-heading{color:${C.brand};white-space:nowrap;}
+      .books-search-snippet{flex:1;color:${C.muted};line-height:1.5;}
+      .books-search-jump{border:1px solid ${C.border};background:${C.bg};color:${C.brand};border-radius:5px;padding:1px 7px;cursor:pointer;font-size:11px;white-space:nowrap;}
+      .books-progress-badge{display:inline-block;font-size:10px;color:${C.brand};border:1px solid ${C.brand};border-radius:10px;padding:0 6px;margin-left:6px;}
+      .books-bookbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
     `;
 
     // ---- Reading typography -------------------------------------------------
@@ -225,7 +263,19 @@ window.__ModuleLoader__.load({
       kai: '"KaiTi","楷体","KaiTi_GB2312","STKaiti",serif',
       system: 'inherit',
     };
-    const TYPO_DEFAULT = { preset: 'gov', lines: 22, chars: 28, lineHeight: 1.75, font: 'fangsong', indent: true, justify: true };
+    const TYPO_DEFAULT = { preset: 'gov', lines: 22, chars: 28, lineHeight: 1.75, font: 'fangsong', indent: true, justify: true, theme: 'auto' };
+
+    // Reading colour palettes. Each is a set of inline CSS values applied to
+    // the reading surface only (never the shelf). "auto" uses the host theme
+    // tokens already in C; the rest override them with concrete colours.
+    const THEMES = {
+      auto: {},
+      paper: { bg: '#ffffff', text: '#1a1a1a', muted: '#555', border: '#e0dcd3' },
+      sepia: { bg: '#f5ecd7', text: '#3b2f1e', muted: '#6b5a3e', border: '#d9c9a3' },
+      night: { bg: '#1c1c1c', text: '#c8c8c8', muted: '#8a8a8a', border: '#333' },
+      dark: { bg: '#2b2b2b', text: '#d6d6d6', muted: '#9a9a9a', border: '#444' },
+    };
+    const themePalette = (name) => THEMES[name] || THEMES.auto;
 
     function clampNumber(value, lo, hi, fallback) {
       const n = Number(value);
@@ -367,6 +417,12 @@ window.__ModuleLoader__.load({
       const [showTypo, setShowTypo] = React.useState(false);
       const textFrameRef = React.useRef(null);
       const typoTimer = React.useRef(null);
+      // Per-book typography scope, progress and in-book search
+      const [typoScope, setTypoScope] = React.useState('global'); // global|book
+      const [showSearch, setShowSearch] = React.useState(false);
+      const [searchQ, setSearchQ] = React.useState('');
+      const [searchResult, setSearchResult] = React.useState(null);
+      const progressTimer = React.useRef(null);
 
       const loadList = React.useCallback(async () => {
         setStatus('loading');
@@ -462,28 +518,41 @@ window.__ModuleLoader__.load({
         return () => { if (ro) ro.disconnect(); };
       }, [reader, chapter, visibleCount, status, layout]);
 
+      // Whenever the reading position changes, persist it. Debounced inside
+      // saveProgress so rapid arrow-key flips produce a single write.
+      React.useEffect(() => {
+        if (!reader) return;
+        if (reader.mode === 'images') saveProgress({ pageNum });
+        else saveProgress({ chapter, textPage });
+      }, [reader, pageNum, textPage, chapter]);
+
       // Persist typography edits (debounced: dragging a slider must not write
-      // the config file on every pixel).
-      const persistTypo = React.useCallback((next) => {
+      // the config file on every pixel). When the scope is "book", the change
+      // is saved into that book's own override instead of the global setting.
+      const persistTypo = React.useCallback((next, scope) => {
         if (typoTimer.current) clearTimeout(typoTimer.current);
         typoTimer.current = setTimeout(() => {
+          const bookId = scope === 'book' && reader ? reader.id : null;
           api('config', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ typography: next }),
-          }).then((data) => {
-            if (data && data.typography) setTypo((prev) => ({ ...prev, ...data.typography }));
-          }).catch(() => { /* best effort */ });
+            body: JSON.stringify(bookId
+              ? { bookTypography: { [bookId]: next } }
+              : { typography: next }),
+          }).then(() => { /* saved; local state already updated */ }).catch(() => { /* best effort */ });
         }, 400);
-      }, []);
+      }, [reader]);
 
-      React.useEffect(() => () => { if (typoTimer.current) clearTimeout(typoTimer.current); }, []);
+      React.useEffect(() => () => {
+        if (typoTimer.current) clearTimeout(typoTimer.current);
+        if (progressTimer.current) clearTimeout(progressTimer.current);
+      }, []);
 
       const updateTypo = (patch) => {
         const next = { ...typo, ...patch };
         if (!('preset' in patch)) next.preset = 'custom';
         setTypo(next);
-        persistTypo(next);
+        persistTypo(next, typoScope);
       };
 
       const applyPreset = (id) => {
@@ -573,17 +642,72 @@ window.__ModuleLoader__.load({
         setErrorText('');
         try {
           const data = await api('read?id=' + encodeURIComponent(id));
-          setReader(data.book);
-          setChapter(-1);
-          setVisibleCount(12);
-          setPageNum(0);
+          const book = data.book;
+          setReader(book);
+          // Apply the book's own typography when one is saved, and remember
+          // that we are now editing this book's scope.
+          if (data.typography) {
+            setTypo({ ...TYPO_DEFAULT, ...data.typography });
+            const meta = (books || []).find((b) => b.id === id);
+            setTypoScope(meta && meta.hasTypography ? 'book' : 'global');
+          }
+          // Restore the saved reading position.
+          const prog = data.progress;
+          const isImages = book.mode === 'images';
+          if (isImages) {
+            setPageNum(prog ? Math.max(0, Math.round(prog.page || 0)) : 0);
+          } else {
+            const ch = prog && prog.chapter >= 0 ? Math.round(prog.chapter) : -1;
+            setChapter(ch);
+            setVisibleCount(ch >= 0 ? Math.max(12, ch + 1) : 12);
+            // textPage is restored after the paging effect recomputes; keep
+            // the desired index in a ref-like state until then.
+            setTextPage(prog ? Math.max(0, Math.round(prog.page || 0)) : 0);
+          }
           setPageZoom(1.4);
-          setTextPage(0);
           setTextPageCount(1);
+          // Search state is per book.
+          setShowSearch(false);
+          setSearchQ('');
+          setSearchResult(null);
           setStatus('idle');
         } catch (e) {
           setErrorText(String(e && e.message || e));
           setStatus('error');
+        }
+      };
+
+      // Persist the current reading position (debounced). For text books the
+      // chapter + within-page index; for image books the scanned page index.
+      const saveProgress = React.useCallback((patch) => {
+        if (!reader) return;
+        if (progressTimer.current) clearTimeout(progressTimer.current);
+        progressTimer.current = setTimeout(() => {
+          const payload = {
+            id: reader.id,
+            chapter: reader.mode === 'images' ? -1 : (typeof patch.chapter === 'number' ? patch.chapter : chapter),
+            page: reader.mode === 'images'
+              ? (typeof patch.pageNum === 'number' ? patch.pageNum : pageNum)
+              : (typeof patch.textPage === 'number' ? patch.textPage : textPage),
+            ratio: typeof patch.ratio === 'number' ? patch.ratio : 0,
+          };
+          api('progress', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload),
+          }).catch(() => { /* best effort */ });
+        }, 600);
+      }, [reader, chapter, pageNum, textPage]);
+
+      const doBookSearch = async () => {
+        const q = searchQ.trim();
+        if (!q) { setMsg(t('searchEmpty')); return; }
+        if (!reader || reader.mode === 'images') { setMsg(t('searchScanned')); return; }
+        try {
+          const data = await api('search?id=' + encodeURIComponent(reader.id) + '&q=' + encodeURIComponent(q));
+          setSearchResult(data);
+        } catch (e) {
+          setMsg(String(e && e.message || e));
         }
       };
 
@@ -870,6 +994,8 @@ window.__ModuleLoader__.load({
                     h('div', { className: 'books-card-meta' },
                       h('span', { className: 'books-badge' }, b.format), Math.round(b.size / 1024) + ' KB',
                       b.folder ? h('span', { className: 'books-badge', style: { marginLeft: 6 } }, '\uD83D\uDCC1 ' + b.folder) : null,
+                      b.progress && b.progress.ratio > 0 && h('span', { className: 'books-progress-badge' },
+                        b.progress.ratio >= 1 ? t('finished') : t('progressBadge').replace('{n}', Math.round(b.progress.ratio * 100))),
                     ),
                     h('div', { className: 'books-card-actions' },
                       h('button', {
@@ -891,6 +1017,55 @@ window.__ModuleLoader__.load({
             reader.mode !== 'images' && reader.warning && h('div', { className: 'books-warn' }, reader.warning || t('noText')),
             h('div', { className: 'books-reader-title' }, reader.title || t('untitled')),
             reader.author && h('div', { className: 'books-reader-author' }, reader.author),
+            h('div', { className: 'books-bookbar' },
+              reader.mode !== 'images' && h('button', {
+                className: 'books-chapter-all' + (showSearch ? ' active' : ''),
+                onClick: () => setShowSearch((v) => !v),
+              }, '🔍 ' + t('bookSearch')),
+              h('div', { className: 'books-theme-dots' },
+                [['auto', t('themeAuto')], ['paper', t('themePaper')], ['sepia', t('themeSepia')], ['night', t('themeNight')], ['dark', t('themeDark')]]
+                  .map((pair) => {
+                    const pal = THEMES[pair[0]];
+                    return h('button', {
+                      key: pair[0],
+                      title: pair[1],
+                      className: 'books-theme-dot' + ((typo.theme || 'auto') === pair[0] ? ' active' : ''),
+                      style: { background: pair[0] === 'auto' ? 'linear-gradient(135deg,#fff 50%,#333 50%)' : (pal.bg || '#fff') },
+                      onClick: () => updateTypo({ theme: pair[0], preset: typo.preset || 'gov' }),
+                    });
+                  }),
+              ),
+            ),
+            reader.mode !== 'images' && showSearch && h('div', { className: 'books-search-box' },
+              h('div', { className: 'books-hint' }, t('bookSearchHint')),
+              h('div', { className: 'books-row' },
+                h('input', {
+                  className: 'books-search-input',
+                  placeholder: t('bookSearchPlaceholder'),
+                  value: searchQ,
+                  onChange: (e) => setSearchQ(e.target.value),
+                  onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); void doBookSearch(); } },
+                }),
+                h('button', { className: 'books-btn', onClick: () => void doBookSearch() }, t('bookSearch')),
+              ),
+              searchResult && h('div', { style: { marginTop: 8 } },
+                searchResult.matches && searchResult.matches.length === 0 && h('div', { className: 'books-hint' }, t('searchNoResults')),
+                searchResult.matches && searchResult.matches.length > 0 && h('div', { className: 'books-hint' },
+                  t('searchResults').replace('{n}', searchResult.total)),
+                (searchResult.matches || []).map((m, i) => h('div', { key: i, className: 'books-search-result' },
+                  h('span', { className: 'books-search-heading' }, m.heading || ('#' + (m.chapter + 1))),
+                  h('span', { className: 'books-search-snippet' }, m.snippet),
+                  h('button', {
+                    className: 'books-search-jump',
+                    onClick: () => {
+                      setChapter(m.chapter); setVisibleCount(Math.max(12, m.chapter + 1));
+                      setTextPage(0); setShowSearch(false);
+                      const vp = textViewportRef.current; if (vp) vp.scrollTop = 0;
+                    },
+                  }, t('searchJump')),
+                )),
+              ),
+            ),
             reader.mode === 'images' && h(React.Fragment, null,
               h('div', { className: 'books-pager' },
                 h('button', {
@@ -964,6 +1139,25 @@ window.__ModuleLoader__.load({
             ),
             reader.mode !== 'images' && showTypo && h('div', { className: 'books-typo-panel' },
               h('div', { className: 'books-typo-row' },
+                h('span', { className: 'books-typo-label' }, t('typoScope')),
+                h('div', { className: 'books-typo-presets' },
+                  [['global', t('typoScopeGlobal')], ['book', t('typoScopeBook')]]
+                    .map((pair) => h('button', {
+                      key: pair[0],
+                      className: 'books-typo-preset' + (typoScope === pair[0] ? ' active' : ''),
+                      onClick: () => {
+                        setTypoScope(pair[0]);
+                        // Switch the visible typography to the corresponding
+                        // stored value (book override vs global default).
+                        void api('read?id=' + encodeURIComponent(reader.id || '')).then((d) => {
+                          if (d && d.typography) setTypo({ ...TYPO_DEFAULT, ...d.typography });
+                        }).catch(() => {});
+                      },
+                    }, pair[1])),
+                ),
+              ),
+              h('div', { className: 'books-typo-note' }, t('typoScopeHint')),
+              h('div', { className: 'books-typo-row' },
                 h('span', { className: 'books-typo-label' }, t('typoPreset')),
                 h('div', { className: 'books-typo-presets' },
                   [['gov', t('typoGov')], ['comfort', t('typoComfort')], ['compact', t('typoCompact')], ['large', t('typoLarge')], ['auto', t('typoAuto')]]
@@ -1027,7 +1221,19 @@ window.__ModuleLoader__.load({
               ),
               h('div', { className: 'books-typo-note' }, t('typoRule')),
             ),
-            reader.mode !== 'images' && h('div', { className: 'books-text-frame', ref: textFrameRef },
+            reader.mode !== 'images' && h('div', {
+              className: 'books-text-frame',
+              ref: textFrameRef,
+              style: (() => {
+                const pal = themePalette(typo.theme || 'auto');
+                return {
+                  background: pal.bg || C.bg,
+                  color: pal.text || C.text,
+                  border: '1px solid ' + (pal.border || C.border),
+                  borderRadius: '10px',
+                };
+              })(),
+            },
               h('div', {
                 className: 'books-text-viewport',
                 ref: textViewportRef,
