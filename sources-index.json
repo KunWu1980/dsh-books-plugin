@@ -2,8 +2,8 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T20:21:58.703Z",
-  "fetchedAt": "2026-11-27T20:21:52.866Z",
+  "updatedAt": "2026-11-27T20:34:53.835Z",
+  "fetchedAt": "2026-11-27T20:34:48.541Z",
   "count": 14,
   "activeCount": 7,
   "sources": [
@@ -31,8 +31,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 303,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 257,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -59,8 +59,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 2242,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 1939,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -87,8 +87,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 353,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 370,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -115,8 +115,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 295,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 117,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -143,8 +143,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 156,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 168,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -172,8 +172,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 548,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 377,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -201,8 +201,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 178,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 169,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -230,8 +230,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 225,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 270,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -242,22 +242,22 @@
       "category": "古籍书目",
       "priority": 2,
       "status": "candidate",
-      "access": "anonymous",
+      "access": "account",
       "homepage": "http://wisdom.chaoxing.com/newwisdom/doordatabase/databasedetail.html?wfwfid=145952&pageId=51729&id=70425",
       "capabilities": [
         "browse"
       ],
       "adapter": "none",
-      "adapterNote": "仅书目元数据，全文为超星体系需账号。",
+      "adapterNote": "2026-11-28 复查：数据库详情页为壳（145KB，机构插件/CAS/5read 表单），mobile 版 JS 显示 openUrl 全部指向 SSO 登录门（portal.chaoxing.com/sso/login、authserver.nwu.edu.cn 等），全文需机构账号。书目元数据可能可取（getDoorElecResourceBySeriesFlag），但无匿名全库入口。",
       "license": "书目元数据开放",
-      "rightsNote": "书目公开，全文另有授权。",
-      "effort": "0.5-1 人日",
+      "rightsNote": "书目公开，全文另有授权（机构账号）。",
+      "effort": "不适用（全文需机构账号）",
       "addedAt": "2026-11-28",
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 176,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 197,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -286,8 +286,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 126,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 118,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -312,8 +312,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 148,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 164,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -324,23 +324,23 @@
       "category": "古籍/地方文献",
       "priority": 2,
       "status": "candidate",
-      "access": "registration",
+      "access": "account",
       "homepage": "https://msq.ynlib.cn/",
       "capabilities": [
         "browse",
         "page-image"
       ],
       "adapter": "none",
-      "adapterNote": "需注册读者账号；服务器 CR/LF 异常致 PowerShell Invoke-WebRequest 报协议冲突，须用 curl。",
+      "adapterNote": "2026-11-28 复查：匿名不可达。前端 bundle 已逆向（AES key=MSQLHKJ1007YUNAN / iv=YUNNANGMSQ1007lh，与江苏同款封装），/portal/book/mainSearch 以任意 JSON/表单体均返回 'json格式错误'（Jetty 9.4.46），/readDetail 与 /imageText 路由有 userId 登录守卫跳 /login，图片服务 /fileBookWeb/ 亦依赖登录态。判定 access=account，无匿名阅读入口。",
       "license": "公版古籍/地方文献",
       "rightsNote": "实名注册后方可访问；数字化资源为图书馆自有数据。",
-      "effort": "2-3 人日（含账号注册流程处理）",
+      "effort": "不适用（无匿名入口，已确认需账号）",
       "addedAt": "2026-11-28",
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 343,
-        "checkedAt": "2026-11-27T20:21:52.866Z",
+        "latencyMs": 326,
+        "checkedAt": "2026-11-27T20:34:48.541Z",
         "note": "via curl fallback"
       }
     },
@@ -366,8 +366,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 365,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 497,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     },
     {
@@ -392,8 +392,8 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 225,
-        "checkedAt": "2026-11-27T20:21:52.866Z"
+        "latencyMs": 199,
+        "checkedAt": "2026-11-27T20:34:48.541Z"
       }
     }
   ]
