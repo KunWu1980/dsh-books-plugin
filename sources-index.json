@@ -2,8 +2,8 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T21:06:54.194Z",
-  "fetchedAt": "2026-11-27T21:06:34.920Z",
+  "updatedAt": "2026-11-27T21:18:20.903Z",
+  "fetchedAt": "2026-11-27T21:18:00.130Z",
   "count": 30,
   "activeCount": 7,
   "sources": [
@@ -31,9 +31,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 233,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 243,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -60,9 +61,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 2332,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 1993,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -89,9 +91,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 336,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 404,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -118,9 +121,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 80,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 99,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -147,9 +151,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 113,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 106,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -177,9 +182,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 879,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 422,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -207,9 +213,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 168,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 197,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -237,9 +244,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 168,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 165,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -264,9 +272,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 197,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 192,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -295,9 +304,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 109,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 115,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -322,9 +332,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 150,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 167,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -350,10 +361,11 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 374,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
+        "latencyMs": 352,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
         "okStreak": 0,
-        "note": "via curl fallback"
+        "note": "via curl fallback",
+        "probedFrom": "local"
       }
     },
     {
@@ -378,9 +390,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 393,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 365,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -405,9 +418,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 167,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 376,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -432,9 +446,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 540,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 1979,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -459,9 +474,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 590,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 673,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -486,9 +502,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 175,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 212,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -513,9 +530,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 336,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 623,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -540,9 +558,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 216,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 250,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -567,9 +586,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 332,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 355,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -594,9 +614,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 193,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 258,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -621,9 +642,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 182,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 149,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -648,10 +670,11 @@
       "health": {
         "ok": false,
         "httpStatus": 400,
-        "latencyMs": 81,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 1,
-        "error": "unexpected status 400 (expected 200)"
+        "latencyMs": 105,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 3,
+        "error": "unexpected status 400 (expected 200)",
+        "probedFrom": "local"
       }
     },
     {
@@ -676,9 +699,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 367,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 319,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -703,9 +727,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 199,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 221,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -730,9 +755,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 139,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 149,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -757,9 +783,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 216,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 198,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -784,10 +811,11 @@
       "health": {
         "ok": false,
         "httpStatus": 502,
-        "latencyMs": 6058,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 1,
-        "error": "unexpected status 502 (expected 200)"
+        "latencyMs": 6129,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 3,
+        "error": "unexpected status 502 (expected 200)",
+        "probedFrom": "local"
       }
     },
     {
@@ -812,9 +840,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 2259,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 2227,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     },
     {
@@ -839,9 +868,10 @@
       "health": {
         "ok": true,
         "httpStatus": 200,
-        "latencyMs": 1533,
-        "checkedAt": "2026-11-27T21:06:34.920Z",
-        "okStreak": 0
+        "latencyMs": 1556,
+        "checkedAt": "2026-11-27T21:18:00.130Z",
+        "okStreak": 0,
+        "probedFrom": "local"
       }
     }
   ]
