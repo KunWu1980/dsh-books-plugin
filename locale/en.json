@@ -151,6 +151,8 @@
   "jsHint": "Jiangsu ancient books platform · image scans of rare books (Nanjing Library and others, online page-by-page image reading)",
   "jsDisclaimer": "Resources come from the Jiangsu ancient books platform public digital collections, for online reading only; copyright remains with the respective rights holders.",
   "jsNoVolume": "No readable volume available for this title yet.",
+  "hnHint": "Hunan Provincial Library · ancient books platform (online reading: page images + OCR text side by side)",
+  "hnDisclaimer": "Resources come from the Hunan Provincial Library public digital collections, for online reading only; copyright remains with the respective rights holders.",
   "libSources": "Library sources",
   "libSourcesHint": "From the public-library index · updated {d}",
   "libSourceActive": "Readable",

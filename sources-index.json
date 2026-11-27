@@ -2,10 +2,10 @@
   "schema": 1,
   "name": "dsh-library-sources",
   "description": "国内图书馆开放/免版权书籍源索引，供 DSH 书架插件在线图书馆同步使用",
-  "updatedAt": "2026-11-27T18:45:20.537Z",
+  "updatedAt": "2026-11-27T19:08:05.791Z",
   "fetchedAt": "2026-11-27T18:14:46.291Z",
   "count": 13,
-  "activeCount": 4,
+  "activeCount": 5,
   "sources": [
     {
       "id": "nlc",
@@ -211,7 +211,7 @@
       "region": "湖南",
       "category": "古籍",
       "priority": 2,
-      "status": "candidate",
+      "status": "active",
       "access": "anonymous",
       "homepage": "https://hnlib.ydzh.net/pancient/index.html#/zhh_home",
       "capabilities": [
@@ -221,11 +221,11 @@
         "ocr-text",
         "fulltext"
       ],
-      "adapter": "none",
-      "adapterNote": "API baseURL=/gujiapi，端点 /guji/search/searchbook、/guji/search/seniorcontent、/guji/gujiCongInfo/list、/shumu/gujiShumuInfo/list；逐页 /readBook、/readBookImg、/readBookImgS、/readBookText、/readBookHigh；图片 CDN https://cdn.ydzh.net/yudi/pic/yudi/static3/。响应 AES 加密，请求头 device/appId/visitType/timeStamp/nonceStr/sign/Authorization，JS 硬编码密钥 CryptoJS.enc.Latin1.parse('abcd20220105hnsx')，有 setInterval+debugger 反调试。",
+      "adapter": "builtin:hn",
+      "adapterNote": "已接入：searchbook 全量目录 346 部（服务端忽略过滤参数，本地过滤）、gujiCongInfo/getInfo 详情、openBookCheckTxt 逐页 OCR 文本、openBookSliderDImg 内嵌 base64 大图；AES-128-CBC ZeroPadding（key/iv=abcd20220105hnsx）+ MD5 签名（sign=md5(appId+nonceStr+timeStamp+systemVersion)，appId=hnstsg）已破解，全匿名。",
       "license": "公版古籍",
       "rightsNote": "平台标注开放数据；匿名访问。",
-      "effort": "1.5-2 人日（需破 AES + 签名）",
+      "effort": "已接入（文本+图片适配器）",
       "addedAt": "2026-11-27",
       "health": {
         "ok": true,
